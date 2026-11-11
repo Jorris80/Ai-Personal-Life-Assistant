@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#4f46e5"><title>AI Personal Life Assistant</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<script>
+/* ===== KONFIGURASI: tempel URL Web App Apps Script Anda (berakhiran /exec). Boleh dikosongkan; aplikasi akan menanyakannya saat pertama dibuka. ===== */
+window.APLA_GAS_URL = "https://script.google.com/macros/s/AKfycbzXO9qLA0kgzAToNo_4eezrJL7D-D2TSBvt-J7Q2DKVy2lpePHEup23tmM1OWzQv368/exec";
+</script>
+<style>
+:root{--bg:#f5f6fa;--surface:#fff;--surface2:#f0f2f7;--text:#141824;--muted:#667085;--border:#e3e6ee;--accent:#4f46e5;--accent2:#7c3aed;--ink:#fff;
+--ok:#12925a;--warn:#b7791f;--danger:#d92d20;--r:16px;--shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px -12px rgba(16,24,40,.14);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+--font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+[data-mode=dark]{--bg:#0d1017;--surface:#161a24;--surface2:#1e2330;--text:#eef0f6;--muted:#98a2b3;--border:#2a3040;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.7);--ok:#3ccb8a;--warn:#f0b455;--danger:#ff6b5e}
+[data-accent=emerald]{--accent:#0f9d6b;--accent2:#0ea5a0}[data-accent=sunset]{--accent:#e2553a;--accent2:#e08a1e}[data-accent=ocean]{--accent:#0b78d0;--accent2:#12a5c7}
+[data-accent=rose]{--accent:#d6336c;--accent2:#a33fd1}[data-accent=slate]{--accent:#3b4a66;--accent2:#5b6b8c}[data-accent=gold]{--accent:#a8741a;--accent2:#c2542d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%}
+body{margin:0;overflow-x:hidden;font:15px/1.5 var(--font);color:var(--text);background:var(--bg);overscroll-behavior-y:none;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}h1,h2,h3{margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:22px;font-weight:700}h2{font-size:17px;font-weight:650}h3{font-size:14px;font-weight:650}p{margin:0}a{color:var(--accent)}
+.hide{display:none!important}.muted{color:var(--muted)}.small{font-size:12.5px}.row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}.grow{flex:1;min-width:0}
+.between{justify-content:space-between}.stack{display:flex;flex-direction:column;gap:12px}.right{margin-left:auto}.center{text-align:center}.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}.pre{white-space:pre-wrap;overflow-wrap:anywhere}
+/* shell */
+#app{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:100dvh;width:100%;overflow:hidden}
+.top{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:calc(10px + var(--sat)) 16px 10px;color:var(--ink);background:linear-gradient(120deg,var(--accent),var(--accent2));position:relative;z-index:5}
+.top .logo{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.18);display:grid;place-items:center;overflow:hidden;flex:none;border:0;padding:0;color:#fff}
+.top .logo img{width:100%;height:100%;object-fit:cover}.top .ttl{font-weight:700;font-size:16.5px;line-height:1.2}.top .sub{font-size:12px;opacity:.85}
+.top .ib{background:rgba(255,255,255,.14);border:0;color:#fff;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;position:relative;flex:none}
+.top .ib:hover{background:rgba(255,255,255,.24)}.badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:#ff4d4f;color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:700;overflow:hidden;border:2px solid rgba(255,255,255,.55);flex:none;padding:0;color:#fff}
+.avatar img{width:100%;height:100%;object-fit:cover}.avatar.lg{width:96px;height:96px;font-size:34px;border:3px solid var(--surface);box-shadow:var(--shadow);background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.avatar.sm{width:32px;height:32px;font-size:13px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.pill{font-size:11.5px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.18);white-space:nowrap}
+.side{display:none}main{min-width:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px 16px calc(92px + var(--sab));scroll-behavior:smooth}
+#view{max-width:1040px;margin:0 auto;animation:fade .16s ease}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+.bnav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--surface);border-top:1px solid var(--border);padding:6px 6px calc(6px + var(--sab));z-index:6}
+.bnav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 2px;border-radius:12px;min-height:48px}
+.bnav button.on{color:var(--accent);font-weight:650}.bnav button.on svg{stroke-width:2.3}
+@media(min-width:900px){#app{grid-template-columns:248px minmax(0,1fr)}.bnav{display:none}.side{display:flex;flex-direction:column;gap:2px;background:var(--surface);border-right:1px solid var(--border);padding:14px 10px;overflow-y:auto}
+.side button{display:flex;align-items:center;gap:11px;border:0;background:none;padding:10px 12px;border-radius:11px;color:var(--muted);text-align:left;font-weight:520}
+.side button:hover{background:var(--surface2);color:var(--text)}.side button.on{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:650}
+.side .sep{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:14px 12px 4px}main{padding:24px 28px 40px}.fab{bottom:28px!important;right:32px!important}.only-m{display:none!important}}
+@media(max-width:899px){.only-d{display:none!important}}
+/* components */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}.grid>*{min-width:0}.g2,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}@media(min-width:700px){.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.gd2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat b{display:block;font-size:26px;font-weight:720;line-height:1.15}.stat span{font-size:12.5px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--border);background:var(--surface);padding:9px 14px;border-radius:12px;font-weight:600;min-height:40px;white-space:nowrap;transition:transform .06s,background .15s}
+.btn:active{transform:scale(.97)}.btn.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));border-color:transparent;color:var(--ink)}.btn.ghost{border-color:transparent;background:transparent;color:var(--accent)}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,var(--border))}.btn.sm{padding:5px 10px;min-height:32px;font-size:13px;border-radius:10px}.btn.block{width:100%}.btn[disabled]{opacity:.55;pointer-events:none}
+.icon-btn{border:0;background:none;width:36px;height:36px;border-radius:10px;display:inline-grid;place-items:center;color:var(--muted);flex:none}.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.fab{position:fixed;right:18px;bottom:calc(84px + var(--sab));width:56px;height:56px;border-radius:18px;border:0;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 24px -8px var(--accent);display:grid;place-items:center;z-index:4}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:10px}label.f>input,label.f>select,label.f>textarea{margin-top:5px}
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=datetime-local],input[type=date],input[type=month],input[type=search],input[type=url],select,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;min-height:42px;font-weight:450}
+textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:99px;font-size:13px;white-space:nowrap;color:var(--muted);font-weight:550}.chip.on{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:620;padding:2px 8px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.tag.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}.tag.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}.tag.bad{background:color-mix(in srgb,var(--danger) 13%,transparent);color:var(--danger)}.tag.acc{background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent)}
+.list{display:flex;flex-direction:column}.item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--border);min-height:52px}.item:last-child{border-bottom:0}.item.tap{cursor:pointer}.item .t{font-weight:580}
+.item.done .t{text-decoration:line-through;color:var(--muted)}
+.ck{width:24px;height:24px;border-radius:8px;border:2px solid var(--border);background:var(--surface);display:grid;place-items:center;flex:none;color:#fff;padding:0}.ck.on{background:var(--ok);border-color:var(--ok)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}.dot.urgent{background:var(--danger)}.dot.high{background:var(--warn)}.dot.normal{background:var(--accent)}.dot.low{background:var(--border)}
+.sw{position:relative;width:46px;height:27px;flex:none}.sw input{opacity:0;width:100%;height:100%;position:absolute;margin:0;z-index:1;cursor:pointer}.sw i{position:absolute;inset:0;border-radius:99px;background:var(--border);transition:.18s}.sw i:after{content:"";position:absolute;left:3px;top:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw input:checked+i{background:var(--accent)}.sw input:checked+i:after{transform:translateX(19px)}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}.empty svg{opacity:.45;margin-bottom:6px}
+.bar{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}.bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2))}.bar.over>i{background:var(--danger)}
+.banner{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));font-size:13.5px}
+.banner.warn{background:color-mix(in srgb,var(--warn) 12%,var(--surface));border-color:color-mix(in srgb,var(--warn) 40%,var(--border))}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 10px}.sec:first-child{margin-top:0}
+/* modal, toast, lightbox */
+.mask{position:fixed;inset:0;background:rgba(10,14,24,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center;animation:fi .15s}@keyframes fi{from{opacity:0}}
+.modal{background:var(--surface);width:100%;max-width:560px;max-height:92dvh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:up .2s cubic-bezier(.2,.8,.2,1)}@keyframes up{from{transform:translateY(40px);opacity:.5}}
+.modal header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}.modal .body{padding:16px;overflow-y:auto;padding-bottom:calc(18px + var(--sab))}
+@media(min-width:700px){.mask{align-items:center}.modal{border-radius:22px;max-height:86dvh}}
+#toast{position:fixed;left:50%;bottom:calc(96px + var(--sab));transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:92vw}
+.toast{background:#1b2030;color:#fff;padding:10px 16px;border-radius:12px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:up .2s}.toast.err{background:#b42318}.toast.ok{background:#0e7a4b}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:90;touch-action:none;overflow:hidden}#lb img{position:absolute;left:50%;top:50%;max-width:92vw;max-height:84vh;transform-origin:center;user-select:none;-webkit-user-drag:none;cursor:grab;border-radius:8px}
+#lb .ctl{position:absolute;left:0;right:0;bottom:calc(20px + var(--sab));display:flex;justify-content:center;gap:10px}#lb .ctl button,#lb .x{background:rgba(255,255,255,.16);color:#fff;border:0;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:20px}#lb .x{position:absolute;right:16px;top:calc(16px + var(--sat))}
+/* auth */
+.auth{min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(1200px 600px at 10% -10%,color-mix(in srgb,var(--accent) 30%,transparent),transparent),radial-gradient(900px 500px at 110% 110%,color-mix(in srgb,var(--accent2) 28%,transparent),transparent),var(--bg)}
+.auth .box{width:100%;max-width:400px}.auth .brand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px;text-align:center}
+.auth .brand .lg{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff;overflow:hidden;box-shadow:0 14px 30px -12px var(--accent);border:0;padding:0}.auth .brand .lg img{width:100%;height:100%;object-fit:cover}
+/* chat */
+.chat{display:flex;flex-direction:column;gap:10px;padding-bottom:86px}.msg{max-width:86%;padding:10px 14px;border-radius:18px;font-size:14.5px}.msg.u{align-self:flex-end;background:linear-gradient(120deg,var(--accent),var(--accent2));color:var(--ink);border-bottom-right-radius:6px}
+.msg.a{align-self:flex-start;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:6px;box-shadow:var(--shadow)}.msg .meta{font-size:11px;color:var(--muted);margin-top:6px}
+.act{display:flex;align-items:flex-start;gap:8px;margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--surface2);font-size:13px}
+.composer{position:fixed;left:0;right:0;bottom:calc(62px + var(--sab));padding:8px 12px;background:linear-gradient(transparent,var(--bg) 30%);z-index:3}.composer .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:6px;box-shadow:var(--shadow)}
+.composer textarea{border:0;min-height:40px;max-height:120px;box-shadow:none!important;background:transparent;padding:9px 10px;resize:none}@media(min-width:900px){.composer{left:248px;bottom:0;padding:12px 28px 18px}}
+.typing i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin-right:3px;animation:bl 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes bl{50%{opacity:.25;transform:translateY(-2px)}}
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}.cal .h{font-size:11px;color:var(--muted);padding:4px 0;font-weight:650}.cal button{border:0;background:none;aspect-ratio:1;border-radius:12px;position:relative;font-weight:560;min-height:38px}
+.cal button.o{color:var(--border)}.cal button.today{box-shadow:inset 0 0 0 2px var(--accent)}.cal button.sel{background:var(--accent);color:var(--ink)}.cal button.has:after{content:"";position:absolute;bottom:5px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--accent2)}.cal button.sel.has:after{background:#fff}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(min-width:700px){.menu-grid{grid-template-columns:repeat(5,1fr)}}
+.menu-grid button{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:16px 6px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;font-weight:600;box-shadow:var(--shadow)}.menu-grid button span.ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
+.sw-acc{display:flex;gap:10px;flex-wrap:wrap}.sw-acc button{width:36px;height:36px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--border);padding:0}.sw-acc button.on{box-shadow:0 0 0 2.5px var(--text)}
+.splash{height:100dvh;display:grid;place-items:center}.spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.legal h3{margin:14px 0 4px}.legal p,.legal li{font-size:13.5px;color:var(--text)}.legal ul{margin:4px 0;padding-left:18px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);vertical-align:top}table.t th{color:var(--muted);font-weight:600;font-size:12px}.scroll-x{overflow-x:auto}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:430px){.top{gap:8px;padding-left:12px;padding-right:12px}.top .ib,.top .logo,.top .avatar{width:34px;height:34px}.top .pill{font-size:10.5px;padding:3px 7px}.top .ttl{font-size:15px}}
+</style>
+</head>
+<body>
+<div id="root"><div class="splash"><div class="spin"></div></div></div><div id="toast" aria-live="polite"></div>
+<script>
+/* AI Personal Life Assistant — klien (inti): state, transport, sinkron offline, navigasi/back, tema, modal, zoom gambar. */
+'use strict';
+var VERSION = '1.0.0';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function uuid() { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }); }
+var LS = {
+  get: function (k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  del: function (k) { try { localStorage.removeItem(k); } catch (e) { } }
+};
+var I = (function () { // ikon garis sederhana (karya sendiri, tanpa pustaka ikon)
+  function s(d, w) { return '<svg width="' + (w || 22) + '" height="' + (w || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
+  var P = {
+    home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/>', chat: '<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', tasks: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>', cal: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/>',
+    menu: '<circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/>',
+    doc: '<path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>', brain: '<path d="M12 5a3 3 0 0 0-5.5 1.5A3 3 0 0 0 5 12a3 3 0 0 0 2 5 3 3 0 0 0 5 1.5zM12 5a3 3 0 0 1 5.5 1.5A3 3 0 0 1 19 12a3 3 0 0 1-2 5 3 3 0 0 1-5 1.5z"/>',
+    wallet: '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14.5h2"/>', bolt: '<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>', mail: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/>',
+    users: '<circle cx="9" cy="9" r="3.2"/><path d="M3 19c.6-3 3-4.6 6-4.6s5.4 1.6 6 4.6M16 6.2a3 3 0 0 1 0 5.6M18 14.8c1.7.6 2.7 2 3 4.2"/>', user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.4 7-5.4s6.2 1.8 7 5.4"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+    card: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/>', shield: '<path d="M12 3l7 3v5.5c0 4.3-2.8 7.6-7 9.5-4.2-1.9-7-5.2-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.2 10"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>', bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/>', edit: '<path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/>', trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+    x: '<path d="M6 6l12 12M18 6L6 18"/>', send: '<path d="M4 12l16-8-6 16-3-6.5z"/>', out: '<path d="M10 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M15 8l4 4-4 4M19 12H9"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+    share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.9l7.6-3.8M8.2 13.1l7.6 3.8"/>', spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 .2.1 2 .7-2 .7-.2.1-.7 2-.7-2-.2-.1-2-.7 2-.7.2-.1z"/>',
+    cloud: '<path d="M7 18a4 4 0 0 1-.6-8A6 6 0 0 1 18 9.5 4.3 4.3 0 0 1 17.5 18z"/>', play: '<path d="M7 5l12 7-12 7z"/>', list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>', cam: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'
+  }, o = {};
+  Object.keys(P).forEach(function (k) { o[k] = s(P[k]); o[k + 'S'] = s(P[k], 17); o[k + 'L'] = s(P[k], 40); });
+  return o;
+})();
+
+var S = { tok: LS.get('apla.tok', ''), b: LS.get('apla.snap', null), view: 'home', arg: null, q: LS.get('apla.q', []), flushing: false, online: navigator.onLine !== false,
+  modal: false, msgs: {}, conv: null, ui: { taskFilter: 'active', calSel: null, calMonth: null, finMonth: null, autoTab: 'wf', mail: null, mailSel: {} }, pub: LS.get('apla.pub', null), busy: {} };
+
+// ---------- transport ----------
+var GAS = (typeof google !== 'undefined' && google.script && google.script.run) ? google.script : null;
+function gasUrl() { return window.APLA_GAS_URL || LS.get('apla.url', ''); }
+function call(action, payload) {
+  return new Promise(function (res, rej) {
+    function done(r) {
+      if (r && r.ok) return res(r.data);
+      var e = r || { code: 'INTERNAL', message: 'Respons server kosong.' };
+      if (e.code === 'UNAUTHENTICATED' && S.tok && action.indexOf('auth.') !== 0) forceLogout(e.message);
+      rej(e);
+    }
+    var off = { code: 'NETWORK', offline: true, message: 'Tidak ada koneksi ke server. Coba lagi saat online.' };
+    if (GAS) {
+      GAS.run.withSuccessHandler(function (s) { var r = null; try { r = JSON.parse(s); } catch (x) { } done(r); }).withFailureHandler(function () { rej(off); }).apiRun(action, JSON.stringify(payload || {}), S.tok);
+      return;
+    }
+    var url = gasUrl(); if (!url) return rej({ code: 'SETUP', message: 'URL Web App Apps Script belum diatur.' });
+    var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 120000);
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload || {}, token: S.tok }), signal: ctl ? ctl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { return r.json(); }).then(function (r) { clearTimeout(tm); setOnline(true); done(r); })
+      .catch(function () { clearTimeout(tm); rej(off); });
+  });
+}
+function fail(e) { toast((e && e.message) || 'Terjadi kesalahan.', 'err'); }
+
+// ---------- data lokal + antrean sinkron (mode offline) ----------
+var persistTm = null;
+function persistNow() { clearTimeout(persistTm); if (!S.tok) return; LS.set('apla.q', S.q); if (S.b && !LS.set('apla.snap', S.b)) { var c = JSON.parse(JSON.stringify(S.b)); c.notifs = []; c.approvals = []; LS.set('apla.snap', c); } }
+function persist() { LS.set('apla.q', S.q); clearTimeout(persistTm); persistTm = setTimeout(persistNow, 250); } // antrean ditulis seketika; snapshot di-debounce
+function replayQueue() { S.q.forEach(function (o) { o.sent = false; if (!S.b.data[o.entity]) return; if (o.kind === 'put') upsertLocal(o.entity, o.record); else S.b.data[o.entity] = D(o.entity).filter(function (r) { return r.id !== o.id; }); }); }
+function D(e) { return (S.b && S.b.data && S.b.data[e]) || []; }
+function byId(e, id) { return D(e).filter(function (r) { return r.id === id; })[0] || null; }
+function can(p) { return !!(S.b && S.b.perms.indexOf(p) >= 0); }
+function upsertLocal(entity, rec) { var a = S.b.data[entity] = S.b.data[entity] || [], i = a.map(function (r) { return r.id; }).indexOf(rec.id); if (i >= 0) a[i] = rec; else a.push(rec); }
+/** Simpan record: langsung tampil (optimistis), masuk antrean, dikirim saat online. */
+function saveRec(entity, patch) {
+  var cur = patch.id ? byId(entity, patch.id) : null, rec = Object.assign({}, cur || { id: uuid(), owner_id: S.b.user.id, created_at: new Date().toISOString() }, patch);
+  rec.updated_at = new Date().toISOString();
+  upsertLocal(entity, rec);
+  S.q = S.q.filter(function (o) { return !(o.kind === 'put' && o.entity === entity && o.record.id === rec.id && !o.sent); });
+  S.q.push({ opId: uuid(), kind: 'put', entity: entity, record: rec });
+  persist(); render(); flush(); return rec;
+}
+function delRec(entity, id) {
+  S.b.data[entity] = D(entity).filter(function (r) { return r.id !== id; });
+  S.q = S.q.filter(function (o) { return !(o.entity === entity && (o.id === id || (o.record && o.record.id === id)) && !o.sent); });
+  S.q.push({ opId: uuid(), kind: 'del', entity: entity, id: id });
+  persist(); render(); flush();
+}
+function flush() {
+  if (S.flushing || !S.q.length || !S.tok) { syncBadge(); return; }
+  S.flushing = true; syncBadge();
+  var batch = S.q.slice(0, 40); batch.forEach(function (o) { o.sent = true; });
+  call('sync', { ops: batch }).then(function (d) {
+    var ids = {}, bad = 0; batch.forEach(function (o) { ids[o.opId] = 1; });
+    S.q = S.q.filter(function (o) { return !ids[o.opId]; });
+    d.results.forEach(function (r, i) {
+      var op = batch[i];
+      if (!r.ok) { bad++; toast(r.message || 'Sebagian perubahan ditolak server.', 'err'); return; }
+      var pending = S.q.some(function (o) { return o.entity === op.entity && ((o.record && o.record.id === (op.id || op.record.id)) || o.id === (op.id || op.record.id)); });
+      if (r.record && !pending) upsertLocal(op.entity, r.record);
+    });
+    S.flushing = false; setOnline(true); persist();
+    if (bad) refresh(); else if (S.q.length) flush(); else { syncBadge(); if (['auto', 'home'].indexOf(S.view) >= 0 && !S.modal) softRefresh(); }
+  }).catch(function (e) {
+    batch.forEach(function (o) { o.sent = false; }); S.flushing = false;
+    if (e.offline) setOnline(false); else if (e.code !== 'UNAUTHENTICATED') { S.q = S.q.filter(function (o) { return batch.indexOf(o) < 0; }); fail(e); refresh(); }
+    persist(); syncBadge();
+  });
+}
+function setOnline(v) { if (S.online !== v) { S.online = v; syncBadge(); if (v) flush(); } }
+function syncBadge() {
+  var el = $('#sync'); if (!el) return;
+  var n = S.q.length;
+  el.className = 'pill' + ((!S.online || n || S.flushing) ? '' : ' hide');
+  el.textContent = !S.online ? ('Offline' + (n ? ' · ' + n + ' antre' : '')) : (S.flushing || n ? 'Sinkron…' : '');
+}
+var lastRefresh = 0;
+function applyBoot(b) { // data server menang, kecuali record yang masih menunggu di antrean
+  S.b = b; var sent = {}; S.q.forEach(function (o) { if (o.sent) sent[o.opId] = 1; }); replayQueue(); S.q.forEach(function (o) { if (sent[o.opId]) o.sent = true; });
+  lastRefresh = Date.now(); persist();
+}
+function refresh() { if (!S.tok) return Promise.resolve(); return call('boot', {}).then(function (b) { applyBoot(b); setOnline(true); if (!S.modal) render(); else updateTop(); }).catch(function (e) { if (e.offline) setOnline(false); }); }
+function softRefresh() { if (Date.now() - lastRefresh > 4000) refresh(); }
+
+// ---------- navigasi & tombol Back ----------
+var Nav = {
+  skip: false, lastGuard: 0, useG: !!(GAS && GAS.history),
+  init: function () {
+    if (Nav.useG) { GAS.history.setChangeHandler(function (e) { onPop(e.state); }); GAS.history.replace({ guard: 1 }, {}, ''); }
+    else { window.addEventListener('popstate', function (e) { onPop(e.state); }); try { history.replaceState({ guard: 1 }, ''); } catch (e) { } }
+    Nav.push({ v: S.view });
+  },
+  push: function (st) { try { if (Nav.useG) GAS.history.push(st, {}, ''); else history.pushState(st, ''); } catch (e) { } },
+  silentBack: function () { Nav.skip = true; setTimeout(function () { Nav.skip = false; }, 500); try { history.back(); } catch (e) { Nav.skip = false; } }
+};
+function onPop(st) {
+  if (Nav.skip) { Nav.skip = false; return; }
+  if ($('#lb')) { closeLbDom(); return; }           // lapisan teratas ditutup dulu
+  if (S.modal) { closeModalDom(); return; }
+  if (!S.tok || !S.b) { Nav.push({ v: 'home' }); return; }
+  if (st && st.v) { S.view = st.v; S.arg = st.a || null; render(true); return; }
+  if (st && st.layer) return;
+  var now = Date.now();                                // mencapai dasar riwayat → jangan menutup aplikasi
+  if (now - Nav.lastGuard < 2000) { try { history.back(); } catch (e) { } return; }
+  Nav.lastGuard = now; Nav.push({ v: 'home' }); S.view = 'home'; S.arg = null; render(true); toast('Tekan kembali sekali lagi untuk keluar');
+}
+function go(v, a) {
+  if (S.view === v && !a && !S.arg) { var m = $('main'); if (m) m.scrollTop = 0; return; }
+  S.view = v; S.arg = a || null; Nav.push({ v: v, a: a || null }); render(true);
+}
+
+// ---------- tema dinamis ----------
+var ACCENTS = { indigo: ['#4f46e5', '#7c3aed'], emerald: ['#0f9d6b', '#0ea5a0'], sunset: ['#e2553a', '#e08a1e'], ocean: ['#0b78d0', '#12a5c7'], rose: ['#d6336c', '#a33fd1'], slate: ['#3b4a66', '#5b6b8c'], gold: ['#a8741a', '#c2542d'] };
+function theme() { return LS.get('apla.theme', { mode: 'auto', accent: 'indigo' }); }
+function applyTheme() {
+  var t = theme(), r = document.documentElement, dark = t.mode === 'dark' || (t.mode !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches), a = t.accent || 'indigo';
+  if (a === 'dynamic') { var h = new Date().getHours(); a = h < 5 ? 'slate' : h < 10 ? 'sunset' : h < 15 ? 'ocean' : h < 18 ? 'emerald' : h < 21 ? 'rose' : 'indigo'; }
+  r.setAttribute('data-mode', dark ? 'dark' : 'light'); r.setAttribute('data-accent', a === 'custom' ? 'indigo' : a);
+  if (a === 'custom' && /^#[0-9a-f]{6}$/i.test(t.custom || '')) { r.style.setProperty('--accent', t.custom); r.style.setProperty('--accent2', t.custom2 || t.custom); } else { r.style.removeProperty('--accent'); r.style.removeProperty('--accent2'); }
+  var m = $('meta[name=theme-color]'); if (m) m.setAttribute('content', a === 'custom' ? t.custom : (ACCENTS[a] || ACCENTS.indigo)[0]);
+}
+function setTheme(p) { var t = Object.assign(theme(), p); LS.set('apla.theme', t); applyTheme(); if (S.tok && S.b) call('profile.save', { prefs: Object.assign({}, S.b.user.prefs, { theme: t }) }).catch(function () { }); }
+
+// ---------- toast, modal, lightbox ----------
+function toast(msg, kind) { var w = $('#toast'), t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.setAttribute('role', 'status'); t.textContent = msg; while (w.children.length > 1) w.removeChild(w.firstChild); w.appendChild(t); setTimeout(function () { t.remove(); }, kind === 'err' ? 5200 : 2600); }
+function modal(title, html) {
+  var had = S.modal; closeModalDom();
+  var m = document.createElement('div'); m.className = 'mask'; m.id = 'mask';
+  m.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><header><h2 class="grow ell">' + esc(title) + '</h2><button class="icon-btn" data-act="modal.close" aria-label="Tutup">' + I.x + '</button></header><div class="body">' + html + '</div></div>';
+  m.addEventListener('mousedown', function (e) { if (e.target === m) closeModal(); });
+  document.body.appendChild(m); S.modal = true; if (!had) Nav.push({ layer: 'modal' }); hydrate();
+  var f = $('input:not([type=hidden]):not([type=checkbox]):not([type=file]),textarea', m); if (f && window.innerWidth > 700) f.focus();
+}
+function closeModalDom() { var m = $('#mask'); if (m) m.remove(); S.modal = false; }
+function closeModal() { if (!S.modal) return; closeModalDom(); Nav.silentBack(); render(); }
+function confirmBox(title, text, okLabel, cb, danger) {
+  modal(title, '<p class="pre">' + esc(text) + '</p><div class="row" style="margin-top:18px"><button class="btn grow" data-act="modal.close">Batal</button><button class="btn ' + (danger ? 'danger' : 'primary') + ' grow" id="cfm">' + esc(okLabel) + '</button></div>');
+  $('#cfm').onclick = function () { closeModal(); cb(); };
+}
+/** Zoom gambar: roda mouse, cubit dua jari, seret, ketuk ganda, tombol +/−. */
+function openLb(src) {
+  if (!src || $('#lb')) return;
+  var el = document.createElement('div'); el.id = 'lb'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Pratinjau gambar');
+  el.innerHTML = '<img alt="Pratinjau" src="' + esc(src) + '"><button class="x" aria-label="Tutup">' + I.x + '</button><div class="ctl"><button data-z="-1" aria-label="Perkecil">−</button><button data-z="0" aria-label="Reset">1:1</button><button data-z="1" aria-label="Perbesar">+</button></div>';
+  document.body.appendChild(el); Nav.push({ layer: 'lb' });
+  var img = $('img', el), z = 1, x = 0, y = 0, pts = {}, d0 = 0, z0 = 1, lastTap = 0;
+  function ap() { z = Math.max(1, Math.min(8, z)); if (z === 1) { x = 0; y = 0; } img.style.transform = 'translate(calc(-50% + ' + x + 'px),calc(-50% + ' + y + 'px)) scale(' + z + ')'; }
+  ap();
+  el.addEventListener('wheel', function (e) { e.preventDefault(); z *= e.deltaY < 0 ? 1.15 : 0.87; ap(); }, { passive: false });
+  el.addEventListener('pointerdown', function (e) { if (e.target.closest('button')) return; pts[e.pointerId] = e; var k = Object.keys(pts); if (k.length === 2) { d0 = Math.hypot(pts[k[0]].clientX - pts[k[1]].clientX, pts[k[0]].clientY - pts[k[1]].clientY); z0 = z; } try { el.setPointerCapture(e.pointerId); } catch (x1) { } });
+  el.addEventListener('pointermove', function (e) {
+    if (!pts[e.pointerId]) return; var p = pts[e.pointerId], k = Object.keys(pts);
+    if (k.length === 1 && z > 1) { x += e.clientX - p.clientX; y += e.clientY - p.clientY; }
+    pts[e.pointerId] = e;
+    if (k.length === 2 && d0) { z = z0 * Math.hypot(pts[k[0]].clientX - pts[k[1]].clientX, pts[k[0]].clientY - pts[k[1]].clientY) / d0; }
+    ap();
+  });
+  function up(e) { delete pts[e.pointerId]; d0 = 0; }
+  el.addEventListener('pointerup', function (e) { var moved = !pts[e.pointerId]; up(e); if (e.target === el && z === 1) { closeLb(); return; } var n = Date.now(); if (e.target === img && n - lastTap < 300) { z = z > 1 ? 1 : 2.5; ap(); } lastTap = n; });
+  el.addEventListener('pointercancel', up);
+  $('.x', el).onclick = closeLb;
+  $$('[data-z]', el).forEach(function (b) { b.onclick = function () { var d = Number(b.getAttribute('data-z')); if (d === 0) z = 1; else z *= d > 0 ? 1.4 : 0.7; ap(); }; });
+}
+function closeLbDom() { var l = $('#lb'); if (l) l.remove(); }
+function closeLb() { if (!$('#lb')) return; closeLbDom(); Nav.silentBack(); }
+
+// ---------- gambar (foto profil / logo) ----------
+function blobSrc(id) { if (!id) return ''; return S.busy['b' + id] === 'x' ? '' : (LS.get('apla.blob.' + id, '') || ''); }
+function hydrate() { // isi <img data-blob> dari cache atau server
+  $$('img[data-blob]').forEach(function (im) {
+    var id = im.getAttribute('data-blob'); if (!id || im.getAttribute('src')) return;
+    var c = blobSrc(id); if (c) { im.src = c; im.classList.remove('hide'); return; }
+    if (S.busy['b' + id]) return; S.busy['b' + id] = 1;
+    call('blob.get', { id: id }).then(function (d) {
+      delete S.busy['b' + id];
+      if (!LS.set('apla.blob.' + id, d.data)) { Object.keys(localStorage).filter(function (k) { return k.indexOf('apla.blob.') === 0; }).forEach(function (k) { LS.del(k); }); LS.set('apla.blob.' + id, d.data); }
+      $$('img[data-blob="' + id + '"]').forEach(function (x) { x.src = d.data; x.classList.remove('hide'); var par = x.parentNode; if (par && /logo|avatar/.test(par.className)) $$('svg,span', par).forEach(function (f) { f.remove(); }); });
+    }).catch(function () { S.busy['b' + id] = 'x'; });
+  });
+}
+function imgB(id, alt) { var c = blobSrc(id); return id ? '<img data-blob="' + esc(id) + '" alt="' + esc(alt || '') + '"' + (c ? ' src="' + c + '"' : ' class="hide"') + '>' : ''; }
+function initials(n) { return String(n || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
+function avatar(u, cls, zoom) { return '<button class="avatar ' + (cls || '') + '"' + (zoom && u.photo_id ? ' data-act="zoom" data-blob-id="' + esc(u.photo_id) + '" aria-label="Perbesar foto ' + esc(u.display_name) + '"' : ' tabindex="-1" aria-hidden="true"') + '>' + (u.photo_id ? imgB(u.photo_id, 'Foto ' + u.display_name) : '') + (u.photo_id && blobSrc(u.photo_id) ? '' : '<span>' + esc(initials(u.display_name)) + '</span>') + '</button>'; }
+/** Pilih & kecilkan gambar di perangkat sebelum unggah (hemat kuota, aman untuk batas sel). */
+function pickImage(maxDim, type, cb) {
+  var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp';
+  inp.onchange = function () {
+    var f = inp.files[0]; if (!f) return; var rd = new FileReader();
+    rd.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var dim = maxDim, q = 0.86, out = '';
+        for (var i = 0; i < 6; i++) {
+          var k = Math.min(1, dim / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
+          var g = c.getContext('2d'); if (type === 'image/jpeg') { g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); } g.drawImage(im, 0, 0, c.width, c.height);
+          out = c.toDataURL(type, q); if (out.length < 380000) break; dim = Math.round(dim * 0.8); q -= 0.08;
+        }
+        if (out.length >= 380000) return toast('Gambar terlalu besar.', 'err'); cb(out);
+      };
+      im.onerror = function () { toast('Berkas bukan gambar yang valid.', 'err'); }; im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  };
+  inp.click();
+}
+
+// ---------- format ----------
+var LOC = 'id-ID';
+function dOf(v) { return v instanceof Date ? v : new Date(v); }
+function fmtD(v) { return dOf(v).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: 'numeric' }); }
+function fmtT(v) { return dOf(v).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' }); }
+function fmtDT(v) { return fmtDay(v) + ' ' + fmtT(v); }
+function dayKey(v) { var d = dOf(v); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function fmtDay(v) { var k = dayKey(v), t = new Date(), n = dayKey(t); if (k === n) return 'Hari ini'; t.setDate(t.getDate() + 1); if (k === dayKey(t)) return 'Besok'; t.setDate(t.getDate() - 2); if (k === dayKey(t)) return 'Kemarin'; return dOf(v).toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short' }); }
+function toInput(v) { if (!v) return ''; var d = dOf(v); return dayKey(d) + 'T' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+function fromInput(s) { return s ? new Date(s).toISOString() : null; }
+function rp(n) { n = Math.round(Number(n) || 0); return (n < 0 ? '−' : '') + 'Rp' + Math.abs(n).toLocaleString(LOC); }
+function download(name, text, type) { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type || 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+function copyText(t) { (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { toast('Disalin', 'ok'); }).catch(function () { window.prompt('Salin teks berikut:', t); }); }
+function opt(v, label, cur) { return '<option value="' + esc(v) + '"' + (String(cur) === String(v) ? ' selected' : '') + '>' + esc(label) + '</option>'; }
+function sw(name, on, act, extra) { return '<span class="sw"><input type="checkbox" role="switch" name="' + esc(name) + '"' + (on ? ' checked' : '') + (act ? ' data-chg="' + act + '"' : '') + (extra || '') + ' aria-label="' + esc(name) + '"><i></i></span>'; }
+function empty(icon, text, sub) { return '<div class="empty">' + icon + '<div><b>' + esc(text) + '</b></div>' + (sub ? '<div class="small">' + esc(sub) + '</div>' : '') + '</div>'; }
+function formObj(f) { var o = {}; $$('input,select,textarea', f).forEach(function (el) { if (!el.name) return; o[el.name] = el.type === 'checkbox' ? el.checked : el.value; }); return o; }
+function busy(btn, on) { if (!btn) return; btn.disabled = !!on; if (on) { btn.setAttribute('data-l', btn.innerHTML); btn.innerHTML = '<span class="spin" style="width:16px;height:16px;border-width:2px"></span>'; } else if (btn.getAttribute('data-l')) btn.innerHTML = btn.getAttribute('data-l'); }
+
+/* Teks hukum: Syarat & Ketentuan, Pemberitahuan Privasi, Lisensi. Templat umum — tinjau bersama penasihat hukum sebelum komersialisasi. */
+var LEGAL = {
+  terms: ['Syarat & Ketentuan', '<p class="small muted">Versi 1.0 · berlaku sejak 11 November 2026</p>' +
+    '<h3>1. Layanan</h3><p>AI Personal Life Assistant (“Aplikasi”) adalah alat bantu produktivitas pribadi: tugas, kalender, pengingat, dokumen, memori, pencatatan keuangan, otomasi, dan asisten AI. Aplikasi berjalan di atas Google Apps Script dan Google Sheets milik pemasang (“Pengelola”).</p>' +
+    '<h3>2. Akun</h3><ul><li>Anda bertanggung jawab menjaga kerahasiaan kata sandi dan seluruh aktivitas pada akun Anda.</li><li>Pengguna di bawah 18 tahun hanya boleh memakai Aplikasi melalui akun yang dibuat dan disetujui orang tua/wali.</li></ul>' +
+    '<h3>3. Asisten AI</h3><ul><li>Jawaban AI dapat keliru, tidak lengkap, atau usang. Periksa kembali sebelum mengambil keputusan penting.</li><li>Aplikasi <b>bukan</b> nasihat medis, hukum, pajak, atau keuangan profesional.</li><li>Aksi berisiko (mis. mengirim email) hanya dijalankan setelah Anda menyetujuinya. Anda bertanggung jawab atas aksi yang Anda setujui.</li><li>Pemrosesan AI memakai penyedia pihak ketiga pilihan Pengelola dan tunduk pada ketentuan penyedia tersebut.</li></ul>' +
+    '<h3>4. Keuangan</h3><p>Fitur keuangan hanya pencatatan (organizer). Aplikasi tidak menyimpan dana, tidak memproses pembayaran, dan tidak melakukan transfer.</p>' +
+    '<h3>5. Lisensi & langganan</h3><ul><li>Hak pakai diberikan per instalasi sesuai paket dan masa berlaku lisensi. Lisensi tidak boleh dipindahtangankan, dijual ulang, atau dipalsukan.</li><li>AI credits bulanan hangus di akhir periode; kredit top-up tidak hangus selama lisensi aktif. Kredit tidak dapat diuangkan.</li><li>Batas paket (kredit, anggota, workflow, dokumen) dapat berubah dengan pemberitahuan.</li></ul>' +
+    '<h3>6. Penggunaan yang dilarang</h3><p>Dilarang memakai Aplikasi untuk melanggar hukum, mengirim spam, mengakses data orang lain tanpa hak, merekayasa balik mekanisme lisensi, atau mengganggu layanan.</p>' +
+    '<h3>7. Ketersediaan & batasan</h3><p>Aplikasi bergantung pada layanan Google dan penyedia AI beserta kuotanya. Layanan disediakan “sebagaimana adanya” tanpa jaminan bebas gangguan. Sejauh diizinkan hukum, tanggung jawab penyedia dibatasi sebesar biaya lisensi yang Anda bayar dalam 12 bulan terakhir.</p>' +
+    '<h3>8. Pengakhiran</h3><p>Anda dapat berhenti dan menghapus data kapan saja lewat menu Privasi. Akses dapat dihentikan jika terjadi pelanggaran ketentuan ini.</p>' +
+    '<h3>9. Hukum yang berlaku</h3><p>Ketentuan ini tunduk pada hukum Republik Indonesia. Perubahan ketentuan diumumkan melalui Aplikasi beserta nomor versinya.</p>'],
+  privacy: ['Pemberitahuan Privasi', '<p class="small muted">Versi 1.0 · berlaku sejak 11 November 2026 · disusun mengacu UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi</p>' +
+    '<h3>1. Pengendali data</h3><p>Pengendali data adalah Pengelola yang memasang Aplikasi ini (pemilik Google Sheet tempat data disimpan). Hubungi Pengelola untuk pertanyaan atau permintaan terkait data Anda.</p>' +
+    '<h3>2. Data yang diproses</h3><ul><li><b>Akun:</b> nama, email, hash kata sandi (bukan kata sandi asli), foto profil, preferensi.</li><li><b>Konten Anda:</b> tugas, agenda, pengingat, memori, teks dokumen, percakapan, catatan keuangan, workflow.</li><li><b>Log:</b> jejak audit aksi, pemakaian AI (jumlah token, model), ledger kredit.</li><li><b>Integrasi Google (khusus pemasang):</b> email dan agenda yang Anda minta untuk dibaca, dibuat draf, atau dikirim.</li></ul>' +
+    '<h3>3. Tujuan & dasar pemrosesan</h3><p>Menyediakan fitur Aplikasi (pelaksanaan layanan), keamanan dan pencegahan penyalahgunaan (kepentingan sah), serta pemrosesan AI, memori, dan email pengingat berdasarkan <b>persetujuan</b> yang dapat Anda cabut di Pusat Privasi.</p>' +
+    '<h3>4. Tempat penyimpanan</h3><p>Data disimpan di Google Sheets dan Script Properties akun Google Pengelola. Salinan cache tersimpan di perangkat Anda agar Aplikasi dapat dibuka offline; cache dihapus saat Anda keluar.</p>' +
+    '<h3>5. Pihak ketiga & transfer lintas negara</h3><ul><li><b>Google</b> (penyimpanan, Gmail, Kalender).</li><li><b>Penyedia AI</b> pilihan Pengelola (mis. Google Gemini, OpenAI, Anthropic): hanya jika Anda menyetujui. Permintaan dan konteks relevan dikirim untuk diproses dan dapat diproses di luar Indonesia.</li><li>Memori bertanda sensitif tidak dikirim ke penyedia AI kecuali Anda mengizinkannya secara terpisah.</li></ul><p>Data tidak dijual dan tidak dipakai untuk iklan.</p>' +
+    '<h3>6. Retensi</h3><p>Data disimpan selama akun aktif. Percakapan dapat dihapus otomatis sesuai pengaturan retensi. Ledger kredit dan audit disimpan untuk akuntabilitas.</p>' +
+    '<h3>7. Hak Anda</h3><ul><li>Mengakses dan mengunduh salinan data (Privasi › Unduh semua data saya).</li><li>Memperbaiki data langsung di Aplikasi.</li><li>Menghapus data atau akun (Privasi › Hapus).</li><li>Mencabut persetujuan kapan saja; melihat, menonaktifkan, dan menghapus memori.</li></ul>' +
+    '<h3>8. Keamanan</h3><p>Kata sandi di-hash dengan salt; token sesi hanya disimpan sebagai hash; data tiap ruang dipisahkan dan diperiksa di server; aksi penting dicatat di audit berantai; isi email/dokumen diperlakukan sebagai data tidak tepercaya bagi AI. Tidak ada sistem yang sepenuhnya bebas risiko — gunakan kata sandi kuat dan aktifkan verifikasi 2 langkah.</p>' +
+    '<h3>9. Anak</h3><p>Akun anak dibuat oleh wali dalam ruang Keluarga, tercatat persetujuan walinya, dan fitur AI dimatikan sampai wali mengizinkan.</p>' +
+    '<h3>10. Berbagi</h3><p>Kartu ringkasan hanya memuat angka agregat, selalu dipratinjau, hanya dibagikan atas persetujuan Anda, memiliki masa berlaku, dan dapat dicabut.</p>'],
+  oss: ['Lisensi & atribusi', '<h3>Kode aplikasi</h3><p>Seluruh kode (server Apps Script, antarmuka, ikon, gaya) ditulis khusus untuk Aplikasi ini. Tidak ada pustaka, font, ikon, atau gambar pihak ketiga yang disertakan atau dimuat dari CDN. Antarmuka memakai font sistem perangkat.</p>' +
+    '<h3>Layanan pihak ketiga</h3><ul><li>Google Apps Script, Google Sheets, Gmail, dan Google Calendar adalah merek dagang Google LLC, dipakai melalui API resminya sesuai Ketentuan Layanan Google.</li><li>Gemini (Google), OpenAI, dan Claude (Anthropic) adalah merek masing-masing pemiliknya; diakses dengan API key milik Pengelola sesuai ketentuan tiap penyedia.</li></ul><p>Aplikasi ini tidak berafiliasi dengan, disponsori, atau didukung oleh perusahaan-perusahaan tersebut.</p>' +
+    '<h3>Hak cipta</h3><p>© 2026 penyedia Aplikasi. Hak pakai diatur oleh lisensi yang Anda aktifkan.</p>']
+};
+
+/* Klien — kerangka, autentikasi, Beranda, Asisten, Tugas, Kalender. */
+var V = {}, ACT = {}, FORM = {}, CHG = {};
+var NAV = [
+  ['home', 'Beranda', 'home'], ['chat', 'Asisten', 'chat'], ['tasks', 'Tugas', 'tasks'], ['calendar', 'Kalender', 'cal'], ['docs', 'Dokumen', 'doc'], ['memory', 'Memori', 'brain'],
+  ['finance', 'Keuangan', 'wallet'], ['auto', 'Otomasi', 'bolt'], ['email', 'Email', 'mail'], ['people', 'Anggota', 'users'],
+  ['profile', 'Profil', 'user'], ['settings', 'Pengaturan', 'gear'], ['billing', 'Langganan', 'card'], ['privacy', 'Privasi', 'shield'], ['about', 'Tentang', 'info']
+];
+function navOk(k) {
+  if (k === 'email') return S.b.google_enabled;
+  if (k === 'finance') return can('finance.read');
+  if (k === 'settings') return can('settings.manage');
+  if (k === 'chat') return can('ai.use');
+  return true;
+}
+function brand() { return (S.b && S.b.brand) || (S.pub && S.pub.brand) || { title: 'AI Personal Life Assistant' }; }
+
+// ---------- kerangka ----------
+function renderShell() {
+  var side = '', b = '';
+  NAV.forEach(function (n, i) { if (!navOk(n[0])) return; if (i === 10) side += '<div class="sep">Akun</div>'; side += '<button data-act="go" data-v="' + n[0] + '" data-nav="' + n[0] + '">' + I[n[2]] + '<span>' + n[1] + '</span></button>'; });
+  [['home', 'Beranda', 'home'], ['chat', 'Asisten', 'chat'], ['tasks', 'Tugas', 'tasks'], ['calendar', 'Kalender', 'cal'], ['more', 'Menu', 'menu']].forEach(function (n) { if (n[0] === 'chat' && !can('ai.use')) return; b += '<button data-act="go" data-v="' + n[0] + '" data-nav="' + n[0] + '">' + I[n[2]] + '<span>' + n[1] + '</span></button>'; });
+  $('#root').innerHTML = '<div id="app"><header class="top"><button class="logo" data-act="logo.zoom" id="logoBtn" aria-label="Perbesar logo"></button><div class="grow" style="min-width:0"><div class="ttl ell" id="ttl"></div><div class="sub ell" id="sub"></div></div>' +
+    '<span class="pill hide" id="sync"></span><button class="ib hide" id="brandEdit" data-act="brand.edit" aria-label="Ubah judul dan logo">' + I.editS + '</button><button class="ib" data-act="notif.open" aria-label="Notifikasi">' + I.bell + '<span class="badge hide" id="nb"></span></button><span id="me"></span></header>' +
+    '<nav class="side" aria-label="Menu utama">' + side + '</nav><main><div id="view"></div></main><nav class="bnav" aria-label="Navigasi bawah">' + b + '</nav></div>';
+}
+function updateTop() {
+  if (!$('#app')) return;
+  var br = brand(), u = S.b.user;
+  $('#ttl').textContent = br.title; $('#sub').textContent = S.b.tenant.name + ' · ' + S.b.plan.name;
+  $('#logoBtn').innerHTML = br.logo_id ? imgB(br.logo_id, 'Logo') + (blobSrc(br.logo_id) ? '' : I.spark) : I.spark;
+  $('#brandEdit').classList.toggle('hide', !can('settings.manage'));
+  $('#me').innerHTML = '<button class="avatar" data-act="go" data-v="profile" aria-label="Profil saya">' + (u.photo_id ? imgB(u.photo_id, 'Foto profil') : '') + (u.photo_id && blobSrc(u.photo_id) ? '' : '<span>' + esc(initials(u.display_name)) + '</span>') + '</button>';
+  var n = S.b.notifs.filter(function (x) { return !x.read; }).length + S.b.approvals.filter(function (a) { return a.status === 'pending'; }).length, nb = $('#nb');
+  nb.textContent = n > 99 ? '99+' : n; nb.classList.toggle('hide', !n);
+  document.title = br.title; syncBadge();
+}
+function render(top) {
+  if (!S.tok || !S.b) { renderAuth(); return; }
+  if (!$('#app')) renderShell();
+  if (!V[S.view] || !navOk(S.view)) S.view = 'home';
+  updateTop();
+  var hl = ['home', 'chat', 'tasks', 'calendar'].indexOf(S.view) >= 0 ? S.view : 'more';
+  $$('[data-nav]').forEach(function (b) { var k = b.getAttribute('data-nav'), on = b.parentNode.className === 'side' ? k === S.view : k === hl; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  var m = $('main'), y = m.scrollTop, v = $('#view');
+  v.innerHTML = V[S.view]();
+  if (top) { v.style.animation = 'none'; void v.offsetWidth; v.style.animation = ''; m.scrollTop = 0; } else m.scrollTop = y;
+  hydrate(); if (S.view === 'chat') chatAfter(top);
+}
+
+// ---------- autentikasi ----------
+var authMode = 'login', otpCh = '';
+function renderAuth() {
+  var p = S.pub || {}, br = brand(), needUrl = !GAS && !gasUrl(), canReg = p.first_run || p.allow_register, h;
+  if (p.first_run && authMode === 'login') authMode = 'register';
+  var logo = '<button class="lg" data-act="logo.zoom" aria-label="Perbesar logo">' + (br.logo ? '<img alt="Logo" src="' + br.logo + '">' : I.sparkL) + '</button>';
+  if (needUrl) h = '<form data-form="url" class="card stack"><h2>Hubungkan ke server</h2><p class="small muted">Tempel URL Web App Google Apps Script Anda (berakhiran <b>/exec</b>). Lihat Panduan PDF bagian instalasi.</p><label class="f">URL Web App<input type="url" name="url" required placeholder="https://script.google.com/macros/s/…/exec"></label><button class="btn primary block">Simpan & lanjut</button></form>';
+  else if (otpCh) h = '<form data-form="otp" class="card stack"><h2>Verifikasi 2 langkah</h2><p class="small muted">Masukkan 6 digit kode yang dikirim ke email Anda.</p><label class="f">Kode<input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label><button class="btn primary block">Verifikasi</button><button type="button" class="btn ghost block" data-act="auth.mode" data-m="login">Kembali</button></form>';
+  else if (authMode === 'register' && canReg) h = '<form data-form="register" class="card stack"><h2>' + (p.first_run ? 'Buat akun pemilik' : 'Daftar akun') + '</h2>' + (p.first_run ? '<p class="small muted">Akun pertama menjadi pemilik & pemasang aplikasi.</p>' : '') +
+    '<label class="f">Nama lengkap<input type="text" name="name" required maxlength="160" autocomplete="name"></label><label class="f">Email<input type="email" name="email" required autocomplete="email"></label><label class="f">Kata sandi (min. 8 karakter)<input type="password" name="password" required minlength="8" autocomplete="new-password"></label>' +
+    '<label class="f">Jenis ruang<select name="tenant_type">' + opt('personal', 'Pribadi', 'personal') + opt('family', 'Keluarga') + opt('business', 'Bisnis / tim') + '</select></label>' +
+    '<label class="row small" style="align-items:flex-start"><input type="checkbox" name="agree" required style="margin-top:3px"><span>Saya menyetujui <a href="#" data-act="legal" data-k="terms">Syarat & Ketentuan</a> dan <a href="#" data-act="legal" data-k="privacy">Pemberitahuan Privasi</a>.</span></label>' +
+    '<button class="btn primary block">Daftar</button>' + (p.first_run ? '' : '<button type="button" class="btn ghost block" data-act="auth.mode" data-m="login">Sudah punya akun? Masuk</button>') + '</form>';
+  else h = '<form data-form="login" class="card stack"><h2>Masuk</h2><label class="f">Email<input type="email" name="email" required autocomplete="username"></label><label class="f">Kata sandi<input type="password" name="password" required autocomplete="current-password"></label><button class="btn primary block">Masuk</button>' +
+    (canReg ? '<button type="button" class="btn ghost block" data-act="auth.mode" data-m="register">Belum punya akun? Daftar</button>' : '') + '</form>';
+  $('#root').innerHTML = '<div class="auth"><div class="box"><div class="brand">' + logo + '<h1>' + esc(br.title) + '</h1><p class="muted small">Asisten pribadi yang membantu mengerjakan, bukan hanya menjawab.</p></div>' + h +
+    '<p class="center small muted" style="margin-top:14px">v' + VERSION + ' · <a href="#" data-act="legal" data-k="terms">S&K</a> · <a href="#" data-act="legal" data-k="privacy">Privasi</a>' + (!GAS && gasUrl() ? ' · <a href="#" data-act="url.reset">Ganti server</a>' : '') + '</p></div></div>';
+}
+function loadPublic() {
+  if (!GAS && !gasUrl()) return;
+  call('public.info', {}).then(function (d) {
+    var same = JSON.stringify(d) === JSON.stringify(S.pub); S.pub = d; LS.set('apla.pub', d); if (S.tok || same) return;
+    var typed = $$('.auth input').some(function (i) { return i.type !== 'checkbox' && i.value; }) || S.modal;
+    if (!typed) return renderAuth();                       // jangan menghapus isian yang sedang diketik
+    var h = $('.auth h1'), lg = $('.auth .lg'); if (h) h.textContent = d.brand.title; if (lg && d.brand.logo) lg.innerHTML = '<img alt="Logo" src="' + d.brand.logo + '">';
+  }).catch(function (e) { if (!S.tok && e.offline) toast('Server tidak terjangkau. Periksa koneksi/URL.', 'err'); });
+}
+function enter(d) {
+  if (d.mfa_required) { otpCh = d.challenge; renderAuth(); return; }
+  otpCh = ''; S.tok = d.token; LS.set('apla.tok', S.tok); S.q = []; S.msgs = {}; S.conv = null; applyBoot(d.boot);
+  var t = (d.boot.user.prefs || {}).theme; if (t && !LS.get('apla.theme', null)) { LS.set('apla.theme', t); applyTheme(); }
+  S.view = 'home'; S.arg = null; $('#root').innerHTML = ''; render(true);
+}
+function clearLocal() { S.tok = ''; S.b = null; S.q = []; S.msgs = {}; S.conv = null; ['apla.tok', 'apla.snap', 'apla.q', 'apla.conv'].forEach(LS.del); Object.keys(localStorage).filter(function (k) { return k.indexOf('apla.blob.') === 0; }).forEach(LS.del); closeModalDom(); }
+function forceLogout(msg) { if (!S.tok) return; clearLocal(); authMode = 'login'; renderAuth(); loadPublic(); if (msg) toast(msg, 'err'); }
+FORM.url = function (o) { var u = o.url.trim(); if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)) return toast('URL harus berbentuk https://script.google.com/…/exec', 'err'); LS.set('apla.url', u); renderAuth(); loadPublic(); };
+ACT['url.reset'] = function () { LS.del('apla.url'); LS.del('apla.pub'); S.pub = null; renderAuth(); };
+ACT['auth.mode'] = function (el) { authMode = el.getAttribute('data-m'); otpCh = ''; renderAuth(); };
+FORM.login = function (o, f) { var b = $('button', f); busy(b, 1); call('auth.login', o).then(enter).catch(function (e) { busy(b, 0); fail(e); }); };
+FORM.register = function (o, f) { var b = $('button.primary', f); busy(b, 1); call('auth.register', o).then(enter).catch(function (e) { busy(b, 0); fail(e); }); };
+FORM.otp = function (o, f) { var b = $('button', f); busy(b, 1); call('auth.otp', { challenge: otpCh, code: o.code }).then(enter).catch(function (e) { busy(b, 0); fail(e); }); };
+ACT.logout = function () { // instan di perangkat; pencabutan sesi di server berjalan di latar
+  var go = function () { var tok = S.tok; call('auth.logout', {}).catch(function () { }); S.tok = tok; clearLocal(); authMode = 'login'; renderAuth(); loadPublic(); toast('Anda telah keluar'); };
+  if (S.q.length) confirmBox('Keluar?', S.q.length + ' perubahan belum tersinkron dan akan hilang jika Anda keluar sekarang.', 'Tetap keluar', go, true); else go();
+};
+ACT.go = function (el) { go(el.getAttribute('data-v'), el.getAttribute('data-a') || null); };
+ACT['modal.close'] = function () { closeModal(); };
+ACT.zoom = function (el) { var id = el.getAttribute('data-blob-id'), s = el.getAttribute('data-src') || blobSrc(id); if (s) openLb(s); };
+ACT['logo.zoom'] = function () { var br = brand(), s = br.logo || blobSrc(br.logo_id); if (s) openLb(s); else toast(can('settings.manage') ? 'Belum ada logo. Ketuk ikon pensil untuk mengunggah.' : 'Belum ada logo.'); };
+ACT.copy = function (el) { copyText(el.getAttribute('data-t')); };
+
+// ---------- judul & logo header (editable) ----------
+var newLogo;
+ACT['brand.edit'] = function () {
+  newLogo = undefined; var br = brand();
+  modal('Judul & logo aplikasi', '<form data-form="brand" class="stack"><div class="row"><button type="button" class="avatar lg" style="border-radius:22px" data-act="brand.zoom" aria-label="Perbesar logo" id="lgPrev">' + (br.logo_id ? imgB(br.logo_id, 'Logo') : I.sparkL) + '</button><div class="stack" style="gap:8px"><button type="button" class="btn sm" data-act="brand.pick">' + I.camS + ' Ganti logo</button><button type="button" class="btn sm danger" data-act="brand.rm">Hapus logo</button></div></div>' +
+    '<label class="f">Judul header<input type="text" name="title" maxlength="60" required value="' + esc(br.title) + '"></label><p class="small muted">Judul dan logo tampil di header, halaman masuk, dan tab browser untuk semua anggota ruang ini.</p><button class="btn primary block">Simpan</button></form>');
+};
+ACT['brand.pick'] = function () { pickImage(512, 'image/png', function (d) { newLogo = d; $('#lgPrev').innerHTML = '<img alt="Logo baru" src="' + d + '">'; }); };
+ACT['brand.rm'] = function () { newLogo = null; $('#lgPrev').innerHTML = I.sparkL; };
+ACT['brand.zoom'] = function () { var s = newLogo || (newLogo === null ? '' : blobSrc(brand().logo_id)); if (s) openLb(s); };
+FORM.brand = function (o, f) { var b = $('button.primary', f), p = { title: o.title }; if (newLogo !== undefined) p.logo = newLogo; busy(b, 1); call('brand.save', p).then(function (d) { S.b.brand = d.brand; persist(); closeModal(); toast('Tampilan disimpan', 'ok'); }).catch(function (e) { busy(b, 0); fail(e); }); };
+
+// ---------- notifikasi ----------
+ACT['notif.open'] = function () {
+  var ap = S.b.approvals.filter(function (a) { return a.status === 'pending'; }), ns = S.b.notifs.slice().reverse();
+  modal('Notifikasi', (ap.length ? '<div class="banner warn row between"><span>' + ap.length + ' aksi menunggu persetujuan Anda</span><button class="btn sm" data-act="go.appr">Tinjau</button></div>' : '') +
+    (ns.length ? '<div class="list">' + ns.map(function (n) { return '<div class="item"><span class="dot ' + (n.read ? 'low' : n.kind === 'error' ? 'urgent' : 'normal') + '"></span><div class="grow"><div class="t">' + esc(n.title) + '</div><div class="small muted pre">' + esc(n.body) + '</div><div class="small muted">' + fmtDT(n.created_at) + '</div></div></div>'; }).join('') + '</div>' : empty(I.bellL, 'Belum ada notifikasi')));
+  if (S.b.notifs.some(function (n) { return !n.read; })) { S.b.notifs.forEach(function (n) { n.read = true; }); call('notif.read', { all: true }).catch(function () { }); persist(); updateTop(); }
+};
+ACT['go.appr'] = function () { closeModalDom(); Nav.silentBack(); S.ui.autoTab = 'ap'; setTimeout(function () { go('auto'); }, 60); };
+
+// ---------- Beranda ----------
+function isOpen(t) { return t.status !== 'done' && t.status !== 'cancelled'; }
+V.home = function () {
+  var now = new Date(), today = dayKey(now), u = S.b.user, h = now.getHours(), tasks = D('tasks').filter(isOpen);
+  var due = tasks.filter(function (t) { return t.due_at && dayKey(t.due_at) <= today; }).sort(function (a, b) { return a.due_at < b.due_at ? -1 : 1; });
+  var evs = D('events').filter(function (e) { return dayKey(e.starts_at) === today; }).sort(function (a, b) { return a.starts_at < b.starts_at ? -1 : 1; });
+  var rem = D('reminders').filter(function (r) { return r.status === 'pending' && dayKey(r.remind_at) <= today; }), ap = S.b.approvals.filter(function (a) { return a.status === 'pending'; });
+  var rows = evs.map(function (e) { return '<div class="item tap" data-act="ev.edit" data-id="' + e.id + '"><span class="tag acc">' + fmtT(e.starts_at) + '</span><div class="grow ell t">' + esc(e.title) + '</div>' + I.calS + '</div>'; })
+    .concat(due.map(taskRow)).concat(rem.map(function (r) { return '<div class="item tap" data-act="rem.edit" data-id="' + r.id + '"><span class="tag warn">' + fmtT(r.remind_at) + '</span><div class="grow ell t">' + esc(r.title) + '</div>' + I.bellS + '</div>'; }));
+  return '<div class="stack"><div><h1>' + (h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 19 ? 'Selamat sore' : 'Selamat malam') + ', ' + esc(u.display_name.split(' ')[0]) + '</h1><p class="muted">' + now.toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '</p></div>' +
+    (can('ai.use') ? '<form data-form="quick" class="card row" style="padding:8px"><input type="text" name="q" placeholder="Minta sesuatu… mis. “buat tugas bayar listrik besok jam 9”" aria-label="Perintah cepat" style="border:0;box-shadow:none"><button class="btn primary" aria-label="Kirim">' + I.send + '</button></form>' : '') +
+    (ap.length ? '<div class="banner warn row between"><span><b>' + ap.length + '</b> aksi menunggu persetujuan Anda</span><button class="btn sm" data-act="go.appr2">Tinjau</button></div>' : '') +
+    '<div class="grid g4"><button class="card stat" data-act="go" data-v="tasks" style="text-align:left"><b class="num">' + tasks.length + '</b><span>Tugas terbuka</span></button><button class="card stat" data-act="go" data-v="tasks" style="text-align:left"><b class="num">' + due.length + '</b><span>Jatuh tempo</span></button>' +
+    '<button class="card stat" data-act="go" data-v="calendar" style="text-align:left"><b class="num">' + evs.length + '</b><span>Agenda hari ini</span></button><button class="card stat" data-act="go" data-v="billing" style="text-align:left"><b class="num">' + S.b.credits.total + '</b><span>AI credits</span></button></div>' +
+    '<div class="card"><div class="sec"><h2>Hari ini</h2><button class="btn sm ghost" data-act="task.new">' + I.plusS + ' Tugas</button></div>' + (rows.length ? '<div class="list">' + rows.join('') + '</div>' : empty(I.checkL, 'Tidak ada yang mendesak', 'Agenda, tenggat, dan pengingat hari ini muncul di sini.')) + '</div>' +
+    '<div class="card row between wrap"><div><h2>Ringkasan mingguan</h2><p class="small muted">Kartu pencapaian yang aman dibagikan — hanya angka, tanpa isi data pribadi.</p></div><button class="btn" data-act="wrapped">' + I.shareS + ' Lihat</button></div></div>';
+};
+ACT['go.appr2'] = function () { S.ui.autoTab = 'ap'; go('auto'); };
+FORM.quick = function (o) { var q = o.q.trim(); if (!q) return; S.pendingMsg = q; go('chat'); };
+
+// ---------- Asisten (chat) ----------
+function curMsgs() { return S.conv ? (S.msgs[S.conv] = S.msgs[S.conv] || []) : []; }
+V.chat = function () {
+  if (!S.conv) S.conv = LS.get('apla.conv', null);
+  var has = S.conv && S.b.conversations.some(function (c) { return c.id === S.conv; }), ms = curMsgs(), t = S.b.tenant, keyOk = Object.keys(t.has_key).some(function (k) { return t.has_key[k]; });
+  if (has && !S.msgs[S.conv].loaded && !S.busy.conv) { S.busy.conv = 1; call('conv.get', { id: S.conv }).then(function (d) { var keep = (S.msgs[d.conversation.id] || []).filter(function (m) { return m.local; }); S.msgs[d.conversation.id] = d.messages.concat(keep); S.msgs[d.conversation.id].loaded = true; delete S.busy.conv; if (S.view === 'chat') render(); }).catch(function () { delete S.busy.conv; S.msgs[S.conv].loaded = true; }); }
+  var body = ms.map(msgHtml).join('');
+  if (!ms.length) body = '<div class="card stack"><div class="row">' + I.sparkL + '<div><h2>Apa yang bisa saya kerjakan?</h2><p class="small muted">Saya bisa membuat tugas, agenda, pengingat, mencatat keuangan, mengingat hal penting, dan menjawab dari dokumen Anda.</p></div></div>' +
+    '<div class="chips">' + ['Buat tugas bayar listrik besok jam 9', 'Ingatkan saya minum obat jam 20.00', 'Pengeluaran 25rb makan siang', 'Apa agenda saya hari ini?'].map(function (x) { return '<button class="chip" data-act="chat.sug" data-t="' + esc(x) + '">' + esc(x) + '</button>'; }).join('') + '</div>' +
+    (keyOk ? '' : '<div class="banner small">Mode aturan lokal aktif: API key AI belum diatur, jadi hanya perintah sederhana yang dipahami.' + (can('settings.manage') ? ' <a href="#" data-act="go" data-v="settings">Atur di Pengaturan › AI</a>.' : '') + '</div>') + '</div>';
+  return '<div class="row between" style="margin-bottom:12px"><h1>Asisten</h1><div class="row"><span class="tag acc">Otonomi ' + esc(t.settings.autonomy || 'L2') + '</span><button class="icon-btn" data-act="chat.list" aria-label="Riwayat percakapan">' + I.list + '</button><button class="icon-btn" data-act="chat.new" aria-label="Percakapan baru">' + I.plus + '</button></div></div>' +
+    '<div class="chat" id="chat" aria-live="polite">' + body + '</div><div class="composer"><form class="in" data-form="chat"><textarea name="m" rows="1" placeholder="Tulis permintaan…" aria-label="Pesan" maxlength="20000"></textarea><button class="btn primary" aria-label="Kirim">' + I.send + '</button></form></div>';
+};
+var ST = { done: ['ok', 'Selesai'], waiting_approval: ['warn', 'Menunggu persetujuan'], suggested: ['acc', 'Saran'], blocked: ['bad', 'Diblokir'], failed: ['bad', 'Gagal'], unverified: ['warn', 'Belum terverifikasi'] };
+function msgHtml(m) {
+  if (m.typing) return '<div class="msg a typing" aria-label="Asisten sedang bekerja"><i></i><i></i><i></i></div>';
+  if (m.role === 'user') return '<div class="msg u pre">' + esc(m.content) + (m.failed ? '<div class="meta" style="color:#fff">Gagal terkirim · <a href="#" style="color:#fff" data-act="chat.retry" data-r="' + esc(m.run_id) + '">Coba lagi</a></div>' : '') + '</div>';
+  var acts = (m.actions || []).map(function (a) {
+    var st = ST[a.status] || ['', a.status], ap = a.approval_id ? S.b.approvals.filter(function (x) { return x.id === a.approval_id; })[0] : null, lab = st[1], cls = st[0];
+    if (ap && ap.status !== 'pending') { lab = { executed: 'Disetujui & dijalankan', rejected: 'Ditolak', expired: 'Kedaluwarsa', failed: 'Gagal dijalankan' }[ap.status] || ap.status; cls = ap.status === 'executed' ? 'ok' : 'bad'; }
+    return '<div class="act"><div class="grow"><div class="row wrap" style="gap:6px"><b>' + esc(a.tool) + '</b><span class="tag ' + cls + '">' + lab + '</span></div><div class="small muted">' + esc((ap && ap.result && ap.result.summary) || a.summary || '') + '</div>' +
+      (ap && ap.status === 'pending' ? '<div class="row" style="margin-top:8px"><button class="btn sm primary" data-act="ap.yes" data-id="' + ap.id + '">Setujui</button><button class="btn sm" data-act="ap.no" data-id="' + ap.id + '">Tolak</button><button class="btn sm ghost" data-act="ap.view" data-id="' + ap.id + '">Detail</button></div>' : '') + '</div></div>';
+  }).join('');
+  var src = (m.sources || []).length ? '<div class="row wrap" style="gap:5px;margin-top:8px"><span class="small muted">Sumber:</span>' + m.sources.map(function (s) { return '<span class="tag">' + esc(s.label) + '</span>'; }).join('') + '</div>' : '';
+  return '<div class="msg a"><div class="pre">' + esc(m.content) + '</div>' + acts + src + '<div class="meta">' + esc(m.agent || 'Asisten') + ' · ' + (m.mode === 'ai' ? esc((m.usage && m.usage.model) || 'AI') : 'aturan lokal') + (m.at ? ' · ' + fmtT(m.at) : '') + '</div></div>';
+}
+function chatAfter(top) {
+  var m = $('main'); m.scrollTop = m.scrollHeight;
+  var ta = $('.composer textarea'); if (ta) { ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 700) { e.preventDefault(); FORM.chat({ m: ta.value }); } }); ta.addEventListener('input', function () { ta.style.height = 'auto'; ta.style.height = Math.min(120, ta.scrollHeight) + 'px'; }); }
+  if (S.pendingMsg) { var q = S.pendingMsg; S.pendingMsg = null; sendChat(q); }
+}
+function sendChat(text, runId) {
+  if (S.busy.chat) return; if (!S.conv) { S.conv = uuid(); LS.set('apla.conv', S.conv); S.msgs[S.conv] = []; S.msgs[S.conv].loaded = true; }
+  var ms = curMsgs(), conv = S.conv, um;
+  if (runId) { um = ms.filter(function (m) { return m.run_id === runId && m.role === 'user'; })[0]; if (um) um.failed = false; }
+  if (!um) { um = { role: 'user', content: text, run_id: runId || uuid(), at: new Date().toISOString(), local: true }; ms.push(um); }
+  ms.push({ typing: true }); S.busy.chat = 1; render();
+  call('ai.chat', { message: um.content, run_id: um.run_id, conversation_id: conv }).then(function (d) {
+    delete S.busy.chat; var a = S.msgs[conv]; S.msgs[conv] = a.filter(function (m) { return !m.typing; }); S.msgs[conv].loaded = true; um.local = false; S.msgs[conv].push(d.message);
+    (d.records || []).forEach(function (r) { if (S.b.data[r.entity]) upsertLocal(r.entity, r.record); });
+    (d.approvals || []).forEach(function (ap) { if (!S.b.approvals.some(function (x) { return x.id === ap.id; })) S.b.approvals.push(ap); });
+    if (d.credits) S.b.credits = d.credits;
+    if (d.conversation) { S.b.conversations = S.b.conversations.filter(function (c) { return c.id !== d.conversation.id; }).concat([d.conversation]); }
+    persist(); if (S.view === 'chat' && !S.modal) render(); else updateTop();
+  }).catch(function (e) {
+    delete S.busy.chat; S.msgs[conv] = S.msgs[conv].filter(function (m) { return !m.typing; }); S.msgs[conv].loaded = true; um.failed = true;
+    if (S.view === 'chat') render();
+    if (e.code === 'CONSENT') consentAsk(function () { sendChat(null, um.run_id); }); else fail(e);
+  });
+}
+function consentAsk(then) {
+  modal('Persetujuan pemrosesan AI', '<div class="stack"><p>Untuk menjawab, teks permintaan Anda beserta konteks yang relevan (tugas, agenda, memori, potongan dokumen) akan dikirim ke penyedia AI eksternal yang dipilih pengelola ruang ini.</p><ul class="small muted" style="margin:0;padding-left:18px"><li>Memori bertanda sensitif tidak dikirim kecuali Anda mengizinkannya.</li><li>Anda dapat mencabut persetujuan kapan saja di menu Privasi.</li></ul><div class="row"><button class="btn grow" data-act="modal.close">Nanti</button><button class="btn primary grow" id="cOk">Saya setuju</button></div></div>');
+  $('#cOk').onclick = function () { busy(this, 1); call('consent.set', { key: 'ai_external', value: true }).then(function (d) { S.b.user.consents = d.consents; persist(); closeModal(); then(); }).catch(fail); };
+}
+FORM.chat = function (o) { var t = String(o.m || '').trim(); if (!t) return; if (!S.online) return toast('Asisten butuh koneksi internet.', 'err'); sendChat(t); };
+ACT['chat.sug'] = function (el) { FORM.chat({ m: el.getAttribute('data-t') }); };
+ACT['chat.retry'] = function (el) { sendChat(null, el.getAttribute('data-r')); };
+ACT['chat.new'] = function () { S.conv = uuid(); LS.set('apla.conv', S.conv); S.msgs[S.conv] = []; S.msgs[S.conv].loaded = true; render(true); };
+ACT['chat.list'] = function () {
+  var cs = S.b.conversations.slice().sort(function (a, b) { return a.updated_at < b.updated_at ? 1 : -1; });
+  modal('Riwayat percakapan', (cs.length ? '<div class="list">' + cs.map(function (c) { return '<div class="item"><div class="grow tap" data-act="chat.open" data-id="' + c.id + '" style="cursor:pointer"><div class="t ell">' + esc(c.title || 'Percakapan') + '</div><div class="small muted">' + fmtDT(c.updated_at) + ' · ' + (c.count || 0) + ' pesan</div></div><button class="icon-btn" data-act="chat.del" data-id="' + c.id + '" aria-label="Hapus percakapan">' + I.trash + '</button></div>'; }).join('') + '</div>' : empty(I.chatL, 'Belum ada percakapan')) +
+    '<p class="small muted" style="margin-top:10px">Percakapan adalah konteks sementara, bukan memori permanen. Atur penghapusan otomatis di Privasi.</p>');
+};
+ACT['chat.open'] = function (el) { S.conv = el.getAttribute('data-id'); LS.set('apla.conv', S.conv); closeModal(); render(true); };
+ACT['chat.del'] = function (el) { var id = el.getAttribute('data-id'); call('conv.delete', { id: id }).then(function () { S.b.conversations = S.b.conversations.filter(function (c) { return c.id !== id; }); delete S.msgs[id]; if (S.conv === id) { S.conv = null; LS.del('apla.conv'); } persist(); ACT['chat.list'](); }).catch(fail); };
+
+// ---------- persetujuan ----------
+function decide(id, yes, btn) {
+  busy(btn, 1);
+  call('approval.decide', { id: id, decision: yes ? 'approve' : 'reject' }).then(function (d) {
+    S.b.approvals = S.b.approvals.map(function (a) { return a.id === d.approval.id ? d.approval : a; });
+    if (d.record && d.entity && S.b.data[d.entity]) upsertLocal(d.entity, d.record);
+    persist(); if (S.modal) closeModal(); else render();
+    toast(d.approval.status === 'executed' ? 'Dijalankan: ' + ((d.approval.result || {}).summary || 'berhasil') : d.approval.status === 'rejected' ? 'Aksi ditolak' : 'Gagal: ' + ((d.approval.result || {}).summary || ''), d.approval.status === 'failed' ? 'err' : 'ok');
+    refresh();
+  }).catch(function (e) { busy(btn, 0); fail(e); refresh(); });
+}
+ACT['ap.yes'] = function (el) { decide(el.getAttribute('data-id'), true, el); };
+ACT['ap.no'] = function (el) { decide(el.getAttribute('data-id'), false, el); };
+ACT['ap.view'] = function (el) {
+  var a = S.b.approvals.filter(function (x) { return x.id === el.getAttribute('data-id'); })[0]; if (!a) return;
+  modal('Detail aksi', '<div class="stack"><div class="row wrap"><b>' + esc(a.tool) + '</b><span class="tag ' + (a.risk === 'high' ? 'bad' : a.risk === 'medium' ? 'warn' : 'ok') + '">risiko ' + esc(a.risk) + '</span><span class="tag">' + esc(a.status) + '</span></div><div class="card pre small" style="box-shadow:none;background:var(--surface2)">' + esc(JSON.stringify(a.args, null, 2)) + '</div><p class="small muted">Diminta ' + fmtDT(a.created_at) + ' · berlaku sampai ' + fmtDT(a.expires_at) + '</p>' +
+    (a.status === 'pending' ? '<div class="row"><button class="btn grow" data-act="ap.no" data-id="' + a.id + '">Tolak</button><button class="btn primary grow" data-act="ap.yes" data-id="' + a.id + '">Setujui & jalankan</button></div>' : '') + '</div>');
+};
+
+// ---------- Tugas & proyek ----------
+var PRI = { urgent: 'Mendesak', high: 'Tinggi', normal: 'Normal', low: 'Rendah' }, TST = { todo: 'Belum', in_progress: 'Dikerjakan', blocked: 'Terhambat', done: 'Selesai', cancelled: 'Batal' };
+function taskRow(t) {
+  var done = t.status === 'done', late = t.due_at && isOpen(t) && new Date(t.due_at) < new Date(), p = t.project_id ? byId('projects', t.project_id) : null;
+  return '<div class="item' + (done ? ' done' : '') + '"><button class="ck' + (done ? ' on' : '') + '" data-act="task.toggle" data-id="' + t.id + '" role="checkbox" aria-checked="' + done + '" aria-label="Tandai selesai: ' + esc(t.title) + '">' + (done ? I.checkS : '') + '</button>' +
+    '<div class="grow tap" data-act="task.edit" data-id="' + t.id + '" style="cursor:pointer;min-width:0"><div class="t ell">' + esc(t.title) + '</div><div class="row wrap small muted" style="gap:6px">' + (t.due_at ? '<span class="tag ' + (late ? 'bad' : '') + '">' + fmtDT(t.due_at) + '</span>' : '') + (p ? '<span class="tag acc">' + esc(p.name) + '</span>' : '') + (t.status === 'in_progress' || t.status === 'blocked' ? '<span class="tag warn">' + TST[t.status] + '</span>' : '') + (t.visibility === 'shared' ? '<span class="tag">Bersama</span>' : '') + '</div></div><span class="dot ' + t.priority + '" title="Prioritas ' + PRI[t.priority] + '"></span></div>';
+}
+V.tasks = function () {
+  var f = S.ui.taskFilter, today = dayKey(new Date()), all = D('tasks'), pr = D('projects').filter(function (p) { return p.status !== 'archived'; }), list;
+  if (f === 'active') list = all.filter(isOpen); else if (f === 'today') list = all.filter(function (t) { return isOpen(t) && t.due_at && dayKey(t.due_at) <= today; }); else if (f === 'done') list = all.filter(function (t) { return t.status === 'done'; }); else if (f === 'mine') list = all.filter(function (t) { return isOpen(t) && t.assigned_to === S.b.user.id; }); else list = all.filter(function (t) { return t.project_id === f && t.status !== 'cancelled'; });
+  var w = { urgent: 0, high: 1, normal: 2, low: 3 };
+  list.sort(function (a, b) { if ((a.status === 'done') !== (b.status === 'done')) return a.status === 'done' ? 1 : -1; if (!!a.due_at !== !!b.due_at) return a.due_at ? -1 : 1; if (a.due_at && a.due_at !== b.due_at) return a.due_at < b.due_at ? -1 : 1; return w[a.priority] - w[b.priority]; });
+  var chips = [['active', 'Aktif'], ['today', 'Hari ini'], ['mine', 'Ditugaskan ke saya'], ['done', 'Selesai']].concat(pr.map(function (p) { return [p.id, p.name]; }));
+  return '<div class="row between" style="margin-bottom:12px"><h1>Tugas</h1><div class="row"><button class="btn sm" data-act="proj.list">Proyek</button>' + (can('data.write') ? '<button class="btn sm primary only-d" data-act="task.new">' + I.plusS + ' Tugas baru</button>' : '') + '</div></div>' +
+    '<div class="chips" role="tablist" style="margin-bottom:12px">' + chips.map(function (c) { return '<button class="chip' + (f === c[0] ? ' on' : '') + '" role="tab" aria-selected="' + (f === c[0]) + '" data-act="task.filter" data-f="' + c[0] + '">' + esc(c[1]) + '</button>'; }).join('') + '</div>' +
+    '<div class="card">' + (list.length ? '<div class="list">' + list.map(taskRow).join('') + '</div>' : empty(I.tasksL, f === 'done' ? 'Belum ada tugas selesai' : 'Tidak ada tugas di sini', 'Ketuk + untuk menambah, atau minta Asisten membuatkannya.')) + '</div>' +
+    (can('data.write') ? '<button class="fab only-m" data-act="task.new" aria-label="Tugas baru">' + I.plus + '</button>' : '');
+};
+ACT['task.filter'] = function (el) { S.ui.taskFilter = el.getAttribute('data-f'); render(); };
+ACT['task.toggle'] = function (el) { var t = byId('tasks', el.getAttribute('data-id')); if (!t) return; if (!can('data.write')) return toast('Peran Anda hanya dapat melihat.', 'err'); saveRec('tasks', { id: t.id, status: t.status === 'done' ? 'todo' : 'done', done_at: t.status === 'done' ? null : new Date().toISOString() }); };
+function shareField(cur) { return (S.b.members.length > 1 || S.b.tenant.tenant_type !== 'personal') ? '<label class="f">Visibilitas<select name="visibility">' + opt('private', 'Privat (hanya saya)', cur || 'private') + opt('shared', 'Bersama (semua anggota)', cur) + '</select></label>' : ''; }
+function taskForm(t) {
+  t = t || { priority: 'normal', status: 'todo' }; var ro = !can('data.write');
+  modal(t.id ? 'Ubah tugas' : 'Tugas baru', '<form data-form="task" class="stack" style="gap:2px"><input type="hidden" name="id" value="' + esc(t.id || '') + '"><label class="f">Judul<input type="text" name="title" required maxlength="250" value="' + esc(t.title || '') + '"></label><label class="f">Catatan<textarea name="description" maxlength="5000">' + esc(t.description || '') + '</textarea></label>' +
+    '<div class="grid g2"><label class="f">Tenggat<input type="datetime-local" name="due_at" value="' + toInput(t.due_at) + '"></label><label class="f">Prioritas<select name="priority">' + Object.keys(PRI).map(function (k) { return opt(k, PRI[k], t.priority); }).join('') + '</select></label>' +
+    '<label class="f">Status<select name="status">' + Object.keys(TST).map(function (k) { return opt(k, TST[k], t.status); }).join('') + '</select></label><label class="f">Proyek<select name="project_id">' + opt('', '— tanpa proyek —', t.project_id || '') + D('projects').map(function (p) { return opt(p.id, p.name, t.project_id); }).join('') + '</select></label></div>' +
+    (S.b.members.length > 1 ? '<label class="f">Ditugaskan ke<select name="assigned_to">' + opt('', '— tidak ada —', t.assigned_to || '') + S.b.members.filter(function (m) { return m.status === 'active'; }).map(function (m) { return opt(m.user_id, m.display_name, t.assigned_to); }).join('') + '</select></label>' : '') + shareField(t.visibility) +
+    (ro ? '' : '<div class="row" style="margin-top:8px">' + (t.id ? '<button type="button" class="btn danger" data-act="task.del" data-id="' + t.id + '" aria-label="Hapus tugas">' + I.trashS + '</button>' : '') + '<button class="btn primary grow">Simpan</button></div>') + '</form>');
+}
+ACT['task.new'] = function () { taskForm(null); };
+ACT['task.edit'] = function (el) { taskForm(byId('tasks', el.getAttribute('data-id'))); };
+FORM.task = function (o) { var r = { title: o.title.trim(), description: o.description, due_at: fromInput(o.due_at), priority: o.priority, status: o.status, project_id: o.project_id }; if (!r.title) return; if (o.id) r.id = o.id; if (o.assigned_to !== undefined) r.assigned_to = o.assigned_to; if (o.visibility) r.visibility = o.visibility; closeModalDom(); Nav.silentBack(); saveRec('tasks', r); toast('Tugas disimpan', 'ok'); };
+ACT['task.del'] = function (el) { var id = el.getAttribute('data-id'); closeModalDom(); Nav.silentBack(); delRec('tasks', id); toast('Tugas dihapus'); };
+ACT['proj.list'] = function () {
+  var ps = D('projects');
+  modal('Proyek', (can('data.write') ? '<form data-form="proj" class="row" style="margin-bottom:12px"><input type="text" name="name" placeholder="Nama proyek baru" required maxlength="200" aria-label="Nama proyek"><button class="btn primary">Tambah</button></form>' : '') +
+    (ps.length ? '<div class="list">' + ps.map(function (p) { var n = D('tasks').filter(function (t) { return t.project_id === p.id; }), d = n.filter(function (t) { return t.status === 'done'; }).length; return '<div class="item"><div class="grow"><div class="t">' + esc(p.name) + '</div><div class="bar" style="margin:6px 0 2px"><i style="width:' + (n.length ? Math.round(d / n.length * 100) : 0) + '%"></i></div><div class="small muted">' + d + '/' + n.length + ' tugas selesai</div></div>' + (can('data.write') ? '<button class="icon-btn" data-act="proj.del" data-id="' + p.id + '" aria-label="Hapus proyek">' + I.trash + '</button>' : '') + '</div>'; }).join('') + '</div>' : empty(I.tasksL, 'Belum ada proyek')));
+};
+FORM.proj = function (o) { saveRec('projects', { name: o.name.trim(), status: 'active' }); ACT['proj.list'](); };
+ACT['proj.del'] = function (el) { var id = el.getAttribute('data-id'); D('tasks').forEach(function (t) { if (t.project_id === id) t.project_id = ''; }); delRec('projects', id); ACT['proj.list'](); };
+
+// ---------- Kalender & pengingat ----------
+V.calendar = function () {
+  var now = new Date(), sel = S.ui.calSel || (S.ui.calSel = dayKey(now)), m = S.ui.calMonth ? new Date(S.ui.calMonth) : new Date(now.getFullYear(), now.getMonth(), 1), first = new Date(m.getFullYear(), m.getMonth(), 1), start = new Date(first);
+  start.setDate(1 - ((first.getDay() + 6) % 7));
+  var marks = {}; D('events').forEach(function (e) { marks[dayKey(e.starts_at)] = 1; }); D('tasks').forEach(function (t) { if (t.due_at && isOpen(t)) marks[dayKey(t.due_at)] = 1; });
+  var cells = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map(function (d) { return '<div class="h">' + d + '</div>'; }).join('');
+  for (var i = 0; i < 42; i++) { var d = new Date(start); d.setDate(start.getDate() + i); var k = dayKey(d); cells += '<button class="' + (d.getMonth() !== m.getMonth() ? 'o ' : '') + (k === dayKey(now) ? 'today ' : '') + (k === sel ? 'sel ' : '') + (marks[k] ? 'has' : '') + '" data-act="cal.day" data-k="' + k + '" aria-label="' + d.toLocaleDateString(LOC, { day: 'numeric', month: 'long' }) + (marks[k] ? ', ada agenda' : '') + '"' + (k === sel ? ' aria-pressed="true"' : '') + '>' + d.getDate() + '</button>'; }
+  var evs = D('events').filter(function (e) { return dayKey(e.starts_at) === sel; }).sort(function (a, b) { return a.starts_at < b.starts_at ? -1 : 1; }), tk = D('tasks').filter(function (t) { return t.due_at && dayKey(t.due_at) === sel; });
+  var rems = D('reminders').slice().sort(function (a, b) { return a.remind_at < b.remind_at ? -1 : 1; }).filter(function (r) { return r.status === 'pending'; });
+  var w = can('data.write');
+  return '<div class="row between" style="margin-bottom:12px"><h1>Kalender</h1><div class="row">' + (S.b.google_enabled ? '<button class="btn sm" data-act="cal.import">' + I.cloudS + ' Impor Google</button>' : '') + (w ? '<button class="btn sm primary only-d" data-act="ev.new">' + I.plusS + ' Agenda</button>' : '') + '</div></div>' +
+    '<div class="grid gd2"><div class="card"><div class="row between" style="margin-bottom:8px"><button class="icon-btn" data-act="cal.nav" data-d="-1" aria-label="Bulan sebelumnya">‹</button><h2>' + m.toLocaleDateString(LOC, { month: 'long', year: 'numeric' }) + '</h2><button class="icon-btn" data-act="cal.nav" data-d="1" aria-label="Bulan berikutnya">›</button></div><div class="cal">' + cells + '</div></div>' +
+    '<div class="stack"><div class="card"><div class="sec"><h2>' + fmtDay(sel + 'T12:00') + '</h2>' + (w ? '<button class="btn sm ghost" data-act="ev.new">' + I.plusS + ' Agenda</button>' : '') + '</div>' + (evs.length || tk.length ? '<div class="list">' + evs.map(function (e) { return '<div class="item tap" data-act="ev.edit" data-id="' + e.id + '"><span class="tag acc">' + fmtT(e.starts_at) + '–' + fmtT(e.ends_at) + '</span><div class="grow" style="min-width:0"><div class="t ell">' + esc(e.title) + '</div>' + (e.location ? '<div class="small muted ell">' + esc(e.location) + '</div>' : '') + '</div>' + (e.external_id ? '<span class="tag">Google</span>' : '') + '</div>'; }).join('') + tk.map(taskRow).join('') + '</div>' : empty(I.calL, 'Tidak ada agenda')) + '</div>' +
+    '<div class="card"><div class="sec"><h2>Pengingat</h2>' + (w ? '<button class="btn sm ghost" data-act="rem.new">' + I.plusS + ' Pengingat</button>' : '') + '</div>' + (rems.length ? '<div class="list">' + rems.map(function (r) { return '<div class="item tap" data-act="rem.edit" data-id="' + r.id + '"><span class="tag warn">' + fmtDT(r.remind_at) + '</span><div class="grow ell t">' + esc(r.title) + '</div>' + (r.repeat !== 'none' ? '<span class="tag">' + { daily: 'Harian', weekly: 'Mingguan', monthly: 'Bulanan' }[r.repeat] + '</span>' : '') + '</div>'; }).join('') + '</div>' : empty(I.bellL, 'Belum ada pengingat')) + '</div></div></div>' +
+    (w ? '<button class="fab only-m" data-act="ev.new" aria-label="Agenda baru">' + I.plus + '</button>' : '');
+};
+ACT['cal.day'] = function (el) { S.ui.calSel = el.getAttribute('data-k'); render(); };
+ACT['cal.nav'] = function (el) { var m = S.ui.calMonth ? new Date(S.ui.calMonth) : new Date(); m = new Date(m.getFullYear(), m.getMonth() + Number(el.getAttribute('data-d')), 1); S.ui.calMonth = m.toISOString(); render(); };
+ACT['cal.import'] = function (el) { busy(el, 1); call('cal.import', { days: 30 }).then(function (d) { d.events.forEach(function (e) { upsertLocal('events', e); }); persist(); render(); toast(d.imported + ' agenda diimpor dari Google Calendar', 'ok'); }).catch(function (e) { busy(el, 0); fail(e); }); };
+function evForm(e) {
+  var base = new Date((S.ui.calSel || dayKey(new Date())) + 'T09:00'); e = e || { starts_at: base.toISOString(), ends_at: new Date(base.getTime() + 3600000).toISOString() };
+  modal(e.id ? 'Ubah agenda' : 'Agenda baru', '<form data-form="ev" class="stack" style="gap:2px"><input type="hidden" name="id" value="' + esc(e.id || '') + '"><label class="f">Judul<input type="text" name="title" required maxlength="250" value="' + esc(e.title || '') + '"></label><div class="grid g2"><label class="f">Mulai<input type="datetime-local" name="starts_at" required value="' + toInput(e.starts_at) + '"></label><label class="f">Selesai<input type="datetime-local" name="ends_at" required value="' + toInput(e.ends_at) + '"></label></div>' +
+    '<label class="f">Lokasi<input type="text" name="location" maxlength="300" value="' + esc(e.location || '') + '"></label><label class="f">Catatan<textarea name="description" maxlength="5000">' + esc(e.description || '') + '</textarea></label>' + shareField(e.visibility) + '<div id="evWarn"></div>' +
+    (can('data.write') ? '<div class="row wrap" style="margin-top:8px">' + (e.id ? '<button type="button" class="btn danger" data-act="ev.del" data-id="' + e.id + '" aria-label="Hapus agenda">' + I.trashS + '</button>' : '') + (e.id && S.b.google_enabled && !e.external_id ? '<button type="button" class="btn" data-act="ev.push" data-id="' + e.id + '">' + I.cloudS + ' Salin ke Google</button>' : '') + '<button class="btn primary grow">Simpan</button></div>' : '') + '</form>');
+}
+ACT['ev.new'] = function () { evForm(null); };
+ACT['ev.edit'] = function (el) { evForm(byId('events', el.getAttribute('data-id'))); };
+var evOk = '';
+FORM.ev = function (o) {
+  var r = { title: o.title.trim(), starts_at: fromInput(o.starts_at), ends_at: fromInput(o.ends_at), location: o.location, description: o.description }; if (o.id) r.id = o.id; if (o.visibility) r.visibility = o.visibility;
+  if (!r.starts_at || !r.ends_at || r.ends_at <= r.starts_at) return toast('Waktu selesai harus setelah waktu mulai.', 'err');
+  var cf = D('events').filter(function (x) { return x.id !== o.id && x.starts_at < r.ends_at && x.ends_at > r.starts_at; }), sig = r.starts_at + r.ends_at;
+  if (cf.length && evOk !== sig) { evOk = sig; $('#evWarn').innerHTML = '<div class="banner warn" role="alert">Bentrok dengan: <b>' + cf.map(function (x) { return esc(x.title) + ' (' + fmtT(x.starts_at) + '–' + fmtT(x.ends_at) + ')'; }).join(', ') + '</b>. Tekan Simpan lagi untuk tetap menyimpan.</div>'; return; }
+  evOk = ''; closeModalDom(); Nav.silentBack(); S.ui.calSel = dayKey(r.starts_at); saveRec('events', r); toast('Agenda disimpan', 'ok');
+};
+ACT['ev.del'] = function (el) { var id = el.getAttribute('data-id'); closeModalDom(); Nav.silentBack(); delRec('events', id); toast('Agenda dihapus'); };
+ACT['ev.push'] = function (el) { busy(el, 1); call('tool.request', { tool: 'calendar.push', args: { event_id: el.getAttribute('data-id') } }).then(function (d) { if (d.record) upsertLocal('events', d.record); persist(); closeModal(); toast(d.result.summary, 'ok'); }).catch(function (e) { busy(el, 0); fail(e); }); };
+function remForm(r) {
+  r = r || { remind_at: new Date(Date.now() + 3600000).toISOString(), repeat: 'none' };
+  modal(r.id ? 'Ubah pengingat' : 'Pengingat baru', '<form data-form="rem" class="stack" style="gap:2px"><input type="hidden" name="id" value="' + esc(r.id || '') + '"><label class="f">Ingatkan saya untuk<input type="text" name="title" required maxlength="250" value="' + esc(r.title || '') + '"></label><div class="grid g2"><label class="f">Waktu<input type="datetime-local" name="remind_at" required value="' + toInput(r.remind_at) + '"></label><label class="f">Ulangi<select name="repeat">' + opt('none', 'Tidak', r.repeat) + opt('daily', 'Harian', r.repeat) + opt('weekly', 'Mingguan', r.repeat) + opt('monthly', 'Bulanan', r.repeat) + '</select></label></div>' +
+    '<p class="small muted">Pengingat muncul di aplikasi. Email pengingat dapat diaktifkan di Privasi (butuh penjadwal aktif di server).</p>' + (can('data.write') ? '<div class="row" style="margin-top:8px">' + (r.id ? '<button type="button" class="btn danger" data-act="rem.del" data-id="' + r.id + '" aria-label="Hapus pengingat">' + I.trashS + '</button>' : '') + '<button class="btn primary grow">Simpan</button></div>' : '') + '</form>');
+}
+ACT['rem.new'] = function () { remForm(null); };
+ACT['rem.edit'] = function (el) { remForm(byId('reminders', el.getAttribute('data-id'))); };
+FORM.rem = function (o) { var r = { title: o.title.trim(), remind_at: fromInput(o.remind_at), repeat: o.repeat, status: 'pending' }; if (o.id) r.id = o.id; closeModalDom(); Nav.silentBack(); saveRec('reminders', r); toast('Pengingat disimpan', 'ok'); };
+ACT['rem.del'] = function (el) { var id = el.getAttribute('data-id'); closeModalDom(); Nav.silentBack(); delRec('reminders', id); };
+
+/* Klien — Dokumen, Memori, Keuangan, Otomasi, Email, Anggota, Menu, Profil, Pengaturan, Langganan, Privasi, Tentang. */
+function done2(msg) { closeModalDom(); Nav.silentBack(); if (msg) toast(msg, 'ok'); }
+
+// ---------- Dokumen ----------
+V.docs = function () {
+  var ds = S.b.documents.slice().sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }), w = can('data.write');
+  return '<div class="row between" style="margin-bottom:12px"><h1>Dokumen</h1>' + (w ? '<button class="btn sm primary" data-act="doc.pick">' + I.plusS + ' Unggah</button>' : '') + '</div>' +
+    '<p class="small muted" style="margin-bottom:12px">' + ds.length + ' / ' + S.b.plan.docs + ' dokumen. TXT, MD, CSV, JSON, HTML dibaca di perangkat; PDF & gambar diekstrak AI (' + S.b.credit_cost.extract + ' kredit, butuh API key Gemini). Hanya teks yang disimpan — berkas asli tidak.</p>' +
+    '<div class="card">' + (ds.length ? '<div class="list">' + ds.map(function (d) { return '<div class="item tap" data-act="doc.open" data-id="' + d.id + '"><span class="tag acc">' + I.docS + '</span><div class="grow" style="min-width:0"><div class="t ell">' + esc(d.name) + '</div><div class="small muted">' + d.chars.toLocaleString(LOC) + ' karakter · ' + fmtD(d.created_at) + (d.summary ? ' · diringkas' : '') + '</div></div>' + (d.visibility === 'shared' ? '<span class="tag">Bersama</span>' : '') + '</div>'; }).join('') + '</div>' : empty(I.docL, 'Belum ada dokumen', 'Unggah dokumen agar Asisten bisa menjawab dengan rujukan sumber.')) + '</div>';
+};
+ACT['doc.pick'] = function () {
+  var inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.txt,.md,.csv,.json,.html,.htm,.pdf,.png,.jpg,.jpeg,.webp';
+  inp.onchange = function () {
+    var f = inp.files[0]; if (!f) return; var ext = f.name.split('.').pop().toLowerCase(), M = { txt: 'text/plain', md: 'text/markdown', csv: 'text/csv', json: 'application/json', html: 'text/html', htm: 'text/html', pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' }, mime = M[ext];
+    if (!mime) return toast('Tipe berkas tidak didukung.', 'err');
+    var bin = ['pdf', 'png', 'jpg', 'jpeg', 'webp'].indexOf(ext) >= 0, rd = new FileReader();
+    if (bin && f.size > 4 * 1024 * 1024) return toast('Berkas terlalu besar (maks 4 MB).', 'err');
+    if (!bin && f.size > 2 * 1024 * 1024) return toast('Berkas teks terlalu besar (maks 2 MB).', 'err');
+    function up(p) { toast('Mengunggah…'); call('doc.upload', p).then(function (d) { S.b.documents.push(d.document); persist(); render(); toast('Dokumen diproses', 'ok'); if (d.flags) toast('Perhatian: dokumen berisi teks mirip instruksi untuk AI. Isinya diperlakukan sebagai data saja.', 'err'); refresh(); }).catch(fail); }
+    rd.onload = function () {
+      if (bin) { var b64 = String(rd.result).split(',')[1]; confirmBox('Ekstrak dengan AI?', 'Isi "' + f.name + '" akan dikirim ke penyedia AI untuk diekstrak menjadi teks (' + S.b.credit_cost.extract + ' kredit).', 'Ekstrak', function () { up({ name: f.name, mime: mime, data_b64: b64 }); }); }
+      else { var t = String(rd.result); if (mime === 'text/html') { var doc = new DOMParser().parseFromString(t, 'text/html'); $$('script,style', doc).forEach(function (x) { x.remove(); }); t = doc.body ? doc.body.textContent : t; } up({ name: f.name, mime: mime, text: t }); }
+    };
+    if (bin) rd.readAsDataURL(f); else rd.readAsText(f);
+  };
+  inp.click();
+};
+ACT['doc.open'] = function (el) {
+  var d = S.b.documents.filter(function (x) { return x.id === el.getAttribute('data-id'); })[0]; if (!d) return;
+  modal(d.name, '<div class="stack"><div class="row wrap small muted"><span class="tag">' + esc(d.mime) + '</span><span>' + d.chars.toLocaleString(LOC) + ' karakter' + (d.truncated ? ' (dipotong)' : '') + '</span><span>SHA-256 ' + esc((d.checksum_sha256 || '').substring(0, 12)) + '…</span></div>' +
+    (d.summary ? '<div class="card pre" style="box-shadow:none;background:var(--surface2)">' + esc(d.summary) + '</div><p class="small muted">Ringkasan AI ' + fmtDT(d.summary_at) + ' · rujukan [bagian N] menunjuk potongan dokumen (±1.000 karakter per bagian).</p>' : '') +
+    '<div class="row wrap">' + (can('ai.use') ? '<button class="btn" data-act="doc.sum" data-id="' + d.id + '">' + I.sparkS + ' ' + (d.summary ? 'Ringkas ulang' : 'Ringkas') + ' (' + S.b.credit_cost.summarize + ' kredit)</button><button class="btn" data-act="doc.ask" data-n="' + esc(d.name) + '">' + I.chatS + ' Tanya dokumen</button>' : '') + (d.owner_id === S.b.user.id ? '<button class="btn danger" data-act="doc.del" data-id="' + d.id + '">' + I.trashS + ' Hapus</button>' : '') + '</div>' +
+    '<h3>Isi dokumen</h3><div class="card pre small" id="docText" style="box-shadow:none;max-height:260px;overflow:auto">Memuat…</div></div>');
+  call('doc.get', { id: d.id }).then(function (r) { var t = $('#docText'); if (t) t.textContent = r.text.substring(0, 6000) + (r.text.length > 6000 ? '\n… (' + (r.text.length - 6000).toLocaleString(LOC) + ' karakter lagi)' : ''); }).catch(function (e) { var t = $('#docText'); if (t) t.textContent = e.message; });
+};
+ACT['doc.sum'] = function (el) { var id = el.getAttribute('data-id'); busy(el, 1); var go2 = function () { call('doc.summarize', { id: id, run_id: uuid() }).then(function (r) { S.b.documents = S.b.documents.map(function (x) { return x.id === id ? r.document : x; }); S.b.credits = r.credits; persist(); ACT['doc.open']({ getAttribute: function () { return id; } }); toast('Ringkasan siap', 'ok'); }).catch(function (e) { busy(el, 0); if (e.code === 'CONSENT') consentAsk(go2); else fail(e); }); }; go2(); };
+ACT['doc.ask'] = function (el) { done2(); S.pendingMsg = null; go('chat'); setTimeout(function () { var ta = $('.composer textarea'); if (ta) { ta.value = 'Berdasarkan dokumen "' + el.getAttribute('data-n') + '": '; ta.focus(); } }, 80); };
+ACT['doc.del'] = function (el) { var id = el.getAttribute('data-id'); call('doc.delete', { id: id }).then(function () { S.b.documents = S.b.documents.filter(function (x) { return x.id !== id; }); persist(); closeModal(); toast('Dokumen dihapus'); }).catch(fail); };
+
+// ---------- Memori ----------
+var MT = { profile: 'Profil', preference: 'Preferensi', episodic: 'Kejadian', semantic: 'Fakta', task: 'Pekerjaan', document: 'Dokumen' };
+V.memory = function () {
+  var ms = D('memories').slice().sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }), c = S.b.user.consents || {};
+  return '<div class="row between" style="margin-bottom:12px"><h1>Memori</h1>' + (can('data.write') ? '<button class="btn sm primary" data-act="mem.new">' + I.plusS + ' Tambah</button>' : '') + '</div>' +
+    '<div class="card row between" style="margin-bottom:12px"><div><b>Gunakan memori saat menjawab</b><div class="small muted">Memori selalu privat milik Anda. Percakapan tidak otomatis menjadi memori.</div></div>' + sw('memory', c.memory !== false, 'consent') + '</div>' +
+    '<div class="card">' + (ms.length ? '<div class="list">' + ms.map(function (m) { var ex = m.expires_at && new Date(m.expires_at) < new Date(); return '<div class="item"><div class="grow tap" data-act="mem.edit" data-id="' + m.id + '" style="cursor:pointer;min-width:0"><div class="' + (m.enabled === false || ex ? 'muted' : '') + '">' + esc(m.content) + '</div><div class="row wrap small" style="gap:6px;margin-top:4px"><span class="tag acc">' + MT[m.memory_type] + '</span>' + (m.sensitivity === 'sensitive' ? '<span class="tag warn">Sensitif</span>' : '') + (ex ? '<span class="tag bad">Kedaluwarsa</span>' : m.expires_at ? '<span class="tag">s.d. ' + fmtD(m.expires_at) + '</span>' : '') + (m.source ? '<span class="tag">' + esc(m.source) + '</span>' : '') + '</div></div>' + sw('en', m.enabled !== false, 'mem.toggle', ' data-id="' + m.id + '"') + '</div>'; }).join('') + '</div>' : empty(I.brainL, 'Belum ada memori', 'Tambahkan hal yang perlu diingat, atau katakan “ingat bahwa …” ke Asisten.')) + '</div>';
+};
+CHG['mem.toggle'] = function (el) { saveRec('memories', { id: el.getAttribute('data-id'), enabled: el.checked }); };
+CHG.consent = function (el) { var k = el.name, v = el.checked; call('consent.set', { key: k, value: v }).then(function (d) { S.b.user.consents = d.consents; persist(); toast('Persetujuan diperbarui', 'ok'); }).catch(function (e) { el.checked = !v; fail(e); }); };
+function memForm(m) {
+  m = m || { memory_type: 'semantic', sensitivity: 'normal' };
+  modal(m.id ? 'Ubah memori' : 'Memori baru', '<form data-form="mem" class="stack" style="gap:2px"><input type="hidden" name="id" value="' + esc(m.id || '') + '"><label class="f">Isi<textarea name="content" required maxlength="4000">' + esc(m.content || '') + '</textarea></label><div class="grid g2"><label class="f">Jenis<select name="memory_type">' + Object.keys(MT).map(function (k) { return opt(k, MT[k], m.memory_type); }).join('') + '</select></label><label class="f">Sensitivitas<select name="sensitivity">' + opt('normal', 'Normal', m.sensitivity) + opt('sensitive', 'Sensitif (tidak dikirim ke AI)', m.sensitivity) + '</select></label></div>' +
+    '<label class="f">Kedaluwarsa (opsional)<input type="date" name="expires_at" value="' + (m.expires_at ? dayKey(m.expires_at) : '') + '"></label><div class="row" style="margin-top:8px">' + (m.id ? '<button type="button" class="btn danger" data-act="mem.del" data-id="' + m.id + '" aria-label="Hapus memori">' + I.trashS + '</button>' : '') + '<button class="btn primary grow">Simpan</button></div></form>');
+}
+ACT['mem.new'] = function () { memForm(null); };
+ACT['mem.edit'] = function (el) { memForm(byId('memories', el.getAttribute('data-id'))); };
+FORM.mem = function (o) { var r = { content: o.content.trim(), memory_type: o.memory_type, sensitivity: o.sensitivity, expires_at: o.expires_at ? new Date(o.expires_at + 'T23:59:59').toISOString() : null }; if (o.id) r.id = o.id; else r.source = 'manual'; done2('Memori disimpan'); saveRec('memories', r); };
+ACT['mem.del'] = function (el) { var id = el.getAttribute('data-id'); done2('Memori dihapus'); delRec('memories', id); };
+
+// ---------- Keuangan (organizer) ----------
+V.finance = function () {
+  var mk = S.ui.finMonth || (S.ui.finMonth = dayKey(new Date()).substring(0, 7)), tx = D('transactions').filter(function (t) { return dayKey(t.date).substring(0, 7) === mk; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; }), inc = 0, exp = 0, cat = {};
+  tx.forEach(function (t) { if (t.type === 'income') inc += t.amount; else { exp += t.amount; cat[t.category || 'Lainnya'] = (cat[t.category || 'Lainnya'] || 0) + t.amount; } });
+  var bud = D('budgets'), names = Object.keys(cat); bud.forEach(function (b) { if (names.indexOf(b.category) < 0) names.push(b.category); });
+  names.sort(function (a, b) { return (cat[b] || 0) - (cat[a] || 0); });
+  var w = can('finance.write'), mx = Math.max.apply(null, names.map(function (n) { return cat[n] || 0; }).concat([1]));
+  return '<div class="row between" style="margin-bottom:12px"><h1>Keuangan</h1><div class="row"><input type="month" value="' + mk + '" data-chg="fin.month" aria-label="Bulan" style="width:auto">' + (w ? '<button class="btn sm primary only-d" data-act="tx.new">' + I.plusS + ' Catat</button>' : '') + '</div></div>' +
+    '<div class="grid g3" style="margin-bottom:12px"><div class="card stat"><b class="num" style="color:var(--ok)">' + rp(inc) + '</b><span>Pemasukan</span></div><div class="card stat"><b class="num" style="color:var(--danger)">' + rp(exp) + '</b><span>Pengeluaran</span></div><div class="card stat"><b class="num">' + rp(inc - exp) + '</b><span>Selisih bulan ini</span></div></div>' +
+    '<div class="grid gd2"><div class="card"><div class="sec"><h2>Anggaran & kategori</h2>' + (w ? '<button class="btn sm ghost" data-act="bud.list">Atur anggaran</button>' : '') + '</div>' + (names.length ? names.map(function (n) { var b = bud.filter(function (x) { return x.category === n; })[0], s = cat[n] || 0, pct = b && b.amount ? s / b.amount * 100 : s / mx * 100; return '<div style="margin-bottom:12px"><div class="row between small"><b>' + esc(n) + '</b><span class="num">' + rp(s) + (b ? ' / ' + rp(b.amount) : '') + '</span></div><div class="bar' + (b && s > b.amount ? ' over' : '') + '" style="margin-top:5px" role="img" aria-label="' + esc(n) + ' ' + Math.round(pct) + '%"><i style="width:' + Math.min(100, pct) + '%"></i></div></div>'; }).join('') : empty(I.walletL, 'Belum ada data bulan ini')) + '</div>' +
+    '<div class="card"><div class="sec"><h2>Transaksi</h2></div>' + (tx.length ? '<div class="list">' + tx.map(function (t) { return '<div class="item tap" data-act="tx.edit" data-id="' + t.id + '"><div class="grow" style="min-width:0"><div class="t ell">' + esc(t.note || t.category || 'Transaksi') + '</div><div class="small muted">' + fmtD(t.date) + ' · ' + esc(t.category || 'Lainnya') + '</div></div><b class="num" style="color:var(--' + (t.type === 'income' ? 'ok' : 'danger') + ')">' + (t.type === 'income' ? '+' : '−') + rp(t.amount) + '</b></div>'; }).join('') + '</div>' : empty(I.walletL, 'Belum ada transaksi')) + '</div></div>' +
+    '<p class="small muted center" style="margin-top:14px">Pencatatan saja. Aplikasi ini tidak menyimpan dana, tidak memproses pembayaran, dan bukan nasihat keuangan.</p>' + (w ? '<button class="fab only-m" data-act="tx.new" aria-label="Catat transaksi">' + I.plus + '</button>' : '');
+};
+CHG['fin.month'] = function (el) { if (el.value) { S.ui.finMonth = el.value; render(); } };
+function txForm(t) {
+  t = t || { type: 'expense', date: new Date().toISOString() }; var cats = {}; D('transactions').concat(D('budgets')).forEach(function (x) { if (x.category) cats[x.category] = 1; });
+  modal(t.id ? 'Ubah transaksi' : 'Catat transaksi', '<form data-form="tx" class="stack" style="gap:2px"><input type="hidden" name="id" value="' + esc(t.id || '') + '"><div class="grid g2"><label class="f">Jenis<select name="type">' + opt('expense', 'Pengeluaran', t.type) + opt('income', 'Pemasukan', t.type) + '</select></label><label class="f">Nominal (Rp)<input type="number" name="amount" required min="1" step="any" inputmode="decimal" value="' + esc(t.amount || '') + '"></label>' +
+    '<label class="f">Kategori<input type="text" name="category" maxlength="80" list="cats" value="' + esc(t.category || '') + '"><datalist id="cats">' + Object.keys(cats).map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist></label><label class="f">Tanggal<input type="date" name="date" required value="' + dayKey(t.date) + '"></label></div><label class="f">Catatan<input type="text" name="note" maxlength="500" value="' + esc(t.note || '') + '"></label>' + shareField(t.visibility) +
+    (can('finance.write') ? '<div class="row" style="margin-top:8px">' + (t.id ? '<button type="button" class="btn danger" data-act="tx.del" data-id="' + t.id + '" aria-label="Hapus transaksi">' + I.trashS + '</button>' : '') + '<button class="btn primary grow">Simpan</button></div>' : '') + '</form>');
+}
+ACT['tx.new'] = function () { txForm(null); };
+ACT['tx.edit'] = function (el) { txForm(byId('transactions', el.getAttribute('data-id'))); };
+FORM.tx = function (o) { var a = Number(o.amount); if (!(a > 0)) return toast('Nominal harus lebih dari 0.', 'err'); var r = { type: o.type, amount: a, category: o.category.trim() || 'Lainnya', note: o.note, date: new Date(o.date + 'T12:00:00').toISOString() }; if (o.id) r.id = o.id; if (o.visibility) r.visibility = o.visibility; done2('Transaksi disimpan'); saveRec('transactions', r); };
+ACT['tx.del'] = function (el) { var id = el.getAttribute('data-id'); done2('Transaksi dihapus'); delRec('transactions', id); };
+ACT['bud.list'] = function () {
+  modal('Anggaran bulanan', '<form data-form="bud" class="row" style="margin-bottom:12px;align-items:flex-end"><label class="f grow" style="margin:0">Kategori<input type="text" name="category" required maxlength="80"></label><label class="f" style="margin:0;width:130px">Batas (Rp)<input type="number" name="amount" required min="0" step="any"></label><button class="btn primary">Simpan</button></form>' +
+    (D('budgets').length ? '<div class="list">' + D('budgets').map(function (b) { return '<div class="item"><div class="grow t">' + esc(b.category) + '</div><span class="num">' + rp(b.amount) + '</span><button class="icon-btn" data-act="bud.del" data-id="' + b.id + '" aria-label="Hapus anggaran">' + I.trash + '</button></div>'; }).join('') + '</div>' : '<p class="muted small">Belum ada anggaran.</p>'));
+};
+FORM.bud = function (o) { var ex = D('budgets').filter(function (b) { return b.category.toLowerCase() === o.category.trim().toLowerCase(); })[0]; saveRec('budgets', Object.assign(ex ? { id: ex.id } : {}, { category: o.category.trim(), amount: Number(o.amount) || 0 })); ACT['bud.list'](); };
+ACT['bud.del'] = function (el) { delRec('budgets', el.getAttribute('data-id')); ACT['bud.list'](); };
+
+// ---------- Otomasi: workflow, persetujuan, riwayat ----------
+var STEP = {
+  'task.create': ['Buat tugas', [['title', 'Judul'], ['priority', 'Prioritas (low/normal/high/urgent)'], ['due_in_days', 'Tenggat (hari dari sekarang)']]],
+  'reminder.create': ['Buat pengingat', [['title', 'Judul'], ['in_minutes', 'Dalam berapa menit']]],
+  'transaction.create': ['Catat transaksi', [['type', 'Jenis (expense/income)'], ['amount', 'Nominal'], ['category', 'Kategori'], ['note', 'Catatan']]],
+  'notify': ['Kirim notifikasi', [['title', 'Judul'], ['body', 'Isi']]],
+  'approval.request': ['Minta persetujuan (jeda)', [['message', 'Pesan']]],
+  'ai.summarize': ['AI: ringkas/olah teks', [['instruction', 'Instruksi'], ['text', 'Teks / variabel']]],
+  'email.draft': ['Buat draft email', [['to', 'Kepada'], ['subject', 'Subjek'], ['body', 'Isi']]]
+};
+var EVT = { 'task.created': 'Tugas dibuat', 'task.done': 'Tugas selesai', 'transaction.created': 'Transaksi dicatat', 'email.received': 'Email masuk (Gmail)' };
+var TPL = [
+  { name: 'Tugas mendesak → pengingat 30 menit', d: { trigger: { type: 'event', event: 'task.created' }, conditions: [{ field: 'priority', op: 'eq', value: 'urgent' }], steps: [{ id: 'ingat', type: 'reminder.create', input: { title: 'Kerjakan: {{trigger.title}}', in_minutes: 30 } }, { id: 'info', type: 'notify', input: { title: 'Otomasi', body: 'Pengingat dibuat untuk "{{trigger.title}}"' } }] } },
+  { name: 'Rekap pagi harian (07.00)', d: { trigger: { type: 'schedule', every: 'day', at: '07:00' }, steps: [{ id: 'pagi', type: 'notify', input: { title: 'Selamat pagi, {{user.name}}', body: 'Cek tugas & agenda Anda untuk {{today}}.' } }] } },
+  { name: 'Pengeluaran besar → tinjau', d: { trigger: { type: 'event', event: 'transaction.created' }, conditions: [{ field: 'amount', op: 'gt', value: '1000000' }], steps: [{ id: 'tinjau', type: 'task.create', input: { title: 'Tinjau pengeluaran: {{trigger.note}} ({{trigger.amount}})', priority: 'high', due_in_days: 1 } }] } },
+  { name: 'Tugas selesai → notifikasi pencapaian', d: { trigger: { type: 'event', event: 'task.done' }, steps: [{ id: 'hore', type: 'notify', input: { title: 'Selesai!', body: '"{{trigger.title}}" beres. Lanjutkan.' } }] } },
+  { name: 'Email tagihan → tugas (dengan persetujuan)', g: 1, d: { trigger: { type: 'event', event: 'email.received', query: 'is:unread subject:(tagihan OR invoice)' }, steps: [{ id: 'izin', type: 'approval.request', input: { message: 'Buat tugas dari email "{{trigger.subject}}"?' } }, { id: 'tugas', type: 'task.create', input: { title: 'Bayar: {{trigger.subject}}', priority: 'high', due_in_days: 3 } }] } }
+];
+var RS = { completed: 'ok', failed: 'bad', partial: 'warn', waiting_approval: 'warn', running: 'acc', queued: '', cancelled: '' };
+V.auto = function () {
+  var tab = S.ui.autoTab, wfs = D('workflows'), ap = S.b.approvals.slice().reverse(), pend = ap.filter(function (a) { return a.status === 'pending'; }), body;
+  if (tab === 'wf') {
+    body = '<p class="small muted" style="margin-bottom:10px">' + wfs.filter(function (w) { return w.enabled; }).length + ' / ' + S.b.plan.workflows + ' workflow aktif (paket ' + esc(S.b.plan.name) + '). Tiap workflow dibatasi langkah, percobaan ulang, waktu, dan biaya.</p><div class="card">' + (wfs.length ? '<div class="list">' + wfs.map(function (w) { var t = w.definition.trigger; return '<div class="item"><div class="grow tap" data-act="wf.edit" data-id="' + w.id + '" style="cursor:pointer;min-width:0"><div class="t ell">' + esc(w.name) + '</div><div class="row wrap small" style="gap:6px"><span class="tag acc">' + (t.type === 'manual' ? 'Manual' : t.type === 'schedule' ? 'Jadwal ' + ({ hour: 'per jam', day: 'harian ' + t.at, week: 'mingguan ' + t.at })[t.every] : EVT[t.event]) + '</span><span class="tag">' + w.definition.steps.length + ' langkah</span><span class="tag">v' + (w.version || 1) + '</span></div></div><button class="icon-btn" data-act="wf.run" data-id="' + w.id + '" aria-label="Jalankan sekarang">' + I.play + '</button>' + sw('en', w.enabled, 'wf.toggle', ' data-id="' + w.id + '"') + '</div>'; }).join('') + '</div>' : empty(I.boltL, 'Belum ada workflow', 'Mulai dari templat di bawah.')) + '</div>' +
+      '<div class="sec"><h2>Templat</h2><button class="btn sm" data-act="wf.new">' + I.plusS + ' Buat dari nol</button></div><div class="grid gd2">' + TPL.filter(function (t) { return !t.g || S.b.google_enabled; }).map(function (t, i) { return '<button class="card row" style="text-align:left" data-act="wf.tpl" data-n="' + esc(t.name) + '">' + I.bolt + '<span class="grow"><b>' + esc(t.name) + '</b><br><span class="small muted">' + t.d.steps.map(function (s) { return STEP[s.type][0]; }).join(' → ') + '</span></span></button>'; }).join('') + '</div>';
+  } else if (tab === 'ap') {
+    body = '<div class="card">' + (ap.length ? '<div class="list">' + ap.map(function (a) { var p = a.status === 'pending'; return '<div class="item"><div class="grow" style="min-width:0"><div class="row wrap" style="gap:6px"><b>' + esc(a.tool === 'workflow.resume' ? 'Lanjutkan workflow' : a.tool) + '</b><span class="tag ' + (a.risk === 'high' ? 'bad' : a.risk === 'medium' ? 'warn' : '') + '">' + esc(a.risk) + '</span><span class="tag ' + (a.status === 'executed' ? 'ok' : p ? 'warn' : '') + '">' + esc(a.status) + '</span></div><div class="small muted ell">' + esc(a.tool === 'workflow.resume' ? a.args.message : (a.result && a.result.summary) || JSON.stringify(a.args)) + '</div><div class="small muted">' + fmtDT(a.created_at) + '</div></div>' + (p ? '<button class="btn sm primary" data-act="ap.yes" data-id="' + a.id + '">Setujui</button><button class="btn sm" data-act="ap.no" data-id="' + a.id + '">Tolak</button>' : '<button class="btn sm ghost" data-act="ap.view" data-id="' + a.id + '">Detail</button>') + '</div>'; }).join('') + '</div>' : empty(I.shieldL, 'Belum ada permintaan persetujuan', 'Aksi berisiko (mis. kirim email) selalu menunggu keputusan Anda di sini.')) + '</div>';
+  } else {
+    if (!S.runs && !S.busy.runs) { S.busy.runs = 1; call('wf.runs', {}).then(function (d) { S.runs = d.runs; delete S.busy.runs; if (S.view === 'auto') render(); }).catch(function () { delete S.busy.runs; S.runs = []; }); }
+    var rs = S.runs || [];
+    body = '<div class="card">' + (!S.runs ? '<div class="empty"><span class="spin" style="display:inline-block"></span></div>' : rs.length ? '<div class="list">' + rs.map(function (r) { return '<div class="item" style="align-items:flex-start"><div class="grow" style="min-width:0"><div class="row wrap" style="gap:6px"><b class="ell">' + esc(r.workflow_name) + '</b><span class="tag ' + RS[r.status] + '">' + esc(r.status) + '</span><span class="tag">' + esc(r.origin) + '</span></div><div class="small muted">' + fmtDT(r.created_at) + ' · ' + r.steps.map(function (s) { return (s.status === 'completed' ? '✓' : s.status === 'failed' ? '✗' : '○') + ' ' + esc(s.id) + (s.attempts > 1 ? ' (' + s.attempts + '×)' : ''); }).join(' · ') + '</div>' + r.steps.filter(function (s) { return s.error; }).map(function (s) { return '<div class="small" style="color:var(--danger)">' + esc(s.error) + '</div>'; }).join('') + '</div>' + (r.status === 'failed' || r.status === 'partial' ? '<button class="btn sm" data-act="run.retry" data-id="' + r.id + '">Ulangi</button>' : r.status === 'waiting_approval' ? '<button class="btn sm" data-act="run.cancel" data-id="' + r.id + '">Batalkan</button>' : '') + '</div>'; }).join('') + '</div>' : empty(I.listL, 'Belum ada riwayat eksekusi')) + '</div>';
+  }
+  return '<div class="row between" style="margin-bottom:12px"><h1>Otomasi</h1></div><div class="chips" role="tablist" style="margin-bottom:12px">' + [['wf', 'Workflow'], ['ap', 'Persetujuan' + (pend.length ? ' (' + pend.length + ')' : '')], ['runs', 'Riwayat']].map(function (t) { return '<button class="chip' + (tab === t[0] ? ' on' : '') + '" role="tab" aria-selected="' + (tab === t[0]) + '" data-act="auto.tab" data-t="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' + body;
+};
+ACT['auto.tab'] = function (el) { S.ui.autoTab = el.getAttribute('data-t'); if (S.ui.autoTab === 'runs') S.runs = null; render(); };
+CHG['wf.toggle'] = function (el) { var w = byId('workflows', el.getAttribute('data-id')); if (el.checked && D('workflows').filter(function (x) { return x.enabled; }).length >= S.b.plan.workflows) { el.checked = false; return toast('Batas workflow aktif paket ' + S.b.plan.name + ' tercapai.', 'err'); } saveRec('workflows', { id: w.id, enabled: el.checked }); };
+ACT['wf.run'] = function (el) { if (!S.online) return toast('Butuh koneksi.', 'err'); busy(el, 1); call('wf.run', { id: el.getAttribute('data-id'), run_id: uuid() }).then(function (d) { busy(el, 0); toast('Workflow: ' + d.run.status, d.run.status === 'completed' ? 'ok' : ''); S.runs = null; refresh(); }).catch(function (e) { busy(el, 0); fail(e); }); };
+ACT['run.retry'] = function (el) { busy(el, 1); call('wf.retry', { id: el.getAttribute('data-id') }).then(function (d) { toast('Hasil: ' + d.run.status, d.run.status === 'completed' ? 'ok' : 'err'); S.runs = null; refresh(); }).catch(function (e) { busy(el, 0); fail(e); }); };
+ACT['run.cancel'] = function (el) { call('wf.cancel', { id: el.getAttribute('data-id') }).then(function () { S.runs = null; refresh(); }).catch(fail); };
+ACT['wf.tpl'] = function (el) { var t = TPL.filter(function (x) { return x.name === el.getAttribute('data-n'); })[0]; WF = { name: t.name, enabled: false, definition: JSON.parse(JSON.stringify(t.d)) }; wfEditor(); };
+ACT['wf.new'] = function () { WF = { name: '', enabled: false, definition: { trigger: { type: 'manual' }, conditions: [], steps: [{ id: 'langkah1', type: 'notify', input: { title: '', body: '' } }] } }; wfEditor(); };
+ACT['wf.edit'] = function (el) { WF = JSON.parse(JSON.stringify(byId('workflows', el.getAttribute('data-id')))); wfEditor(); };
+var WF = null;
+function wfRead() { // baca isian editor ke draf
+  var f = $('#wfForm'); if (!f) return; var o = formObj(f), d = WF.definition; WF.name = o.name;
+  d.trigger = { type: o.ttype }; if (o.ttype === 'schedule') { d.trigger.every = o.every; d.trigger.at = o.at || '07:00'; d.trigger.weekday = Number(o.weekday) || 1; } if (o.ttype === 'event') { d.trigger.event = o.event; if (o.event === 'email.received') d.trigger.query = o.query || 'is:unread'; }
+  d.conditions = o.cfield ? [{ field: o.cfield.trim(), op: o.cop, value: o.cval }] : [];
+  d.steps.forEach(function (s, i) { s.id = (o['sid' + i] || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_') || ('langkah' + (i + 1)); if (s.type !== o['stype' + i]) { s.type = o['stype' + i]; s.input = {}; } else STEP[s.type][1].forEach(function (fd) { s.input[fd[0]] = o['s' + i + '_' + fd[0]] || ''; }); });
+  d.limits = { max_retries: Number(o.max_retries) || 0, max_credits: Number(o.max_credits) || 0 };
+}
+function wfEditor() {
+  var d = WF.definition, t = d.trigger, c = (d.conditions || [])[0] || {}, L = d.limits || {};
+  modal(WF.id ? 'Ubah workflow' : 'Workflow baru', '<form id="wfForm" data-form="wf" class="stack" style="gap:2px"><label class="f">Nama<input type="text" name="name" required maxlength="200" value="' + esc(WF.name) + '"></label>' +
+    '<h3>Pemicu</h3><div class="grid g2"><label class="f">Jenis<select name="ttype" data-chg="wf.re">' + opt('manual', 'Manual', t.type) + opt('schedule', 'Terjadwal', t.type) + opt('event', 'Kejadian', t.type) + '</select></label>' +
+    (t.type === 'schedule' ? '<label class="f">Setiap<select name="every" data-chg="wf.re">' + opt('hour', 'Jam', t.every) + opt('day', 'Hari', t.every) + opt('week', 'Minggu', t.every) + '</select></label>' + (t.every !== 'hour' ? '<label class="f">Pukul<input type="text" name="at" pattern="\\d{2}:\\d{2}" value="' + esc(t.at || '07:00') + '"></label>' : '') + (t.every === 'week' ? '<label class="f">Hari<select name="weekday">' + ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map(function (n, i) { return opt(i + 1, n, t.weekday || 1); }).join('') + '</select></label>' : '') : '') +
+    (t.type === 'event' ? '<label class="f">Kejadian<select name="event" data-chg="wf.re">' + Object.keys(EVT).filter(function (k) { return k !== 'email.received' || S.b.google_enabled; }).map(function (k) { return opt(k, EVT[k], t.event); }).join('') + '</select></label>' + (t.event === 'email.received' ? '<label class="f">Filter Gmail<input type="text" name="query" maxlength="200" value="' + esc(t.query || 'is:unread') + '"></label>' : '') : '') + '</div>' +
+    (t.type === 'event' ? '<h3>Syarat (opsional)</h3><div class="grid g3"><label class="f">Kolom<input type="text" name="cfield" placeholder="mis. priority, amount" value="' + esc(c.field || '') + '"></label><label class="f">Operator<select name="cop">' + [['eq', '='], ['neq', '≠'], ['contains', 'memuat'], ['gt', '>'], ['lt', '<']].map(function (x) { return opt(x[0], x[1], c.op || 'eq'); }).join('') + '</select></label><label class="f">Nilai<input type="text" name="cval" value="' + esc(c.value || '') + '"></label></div>' : '') +
+    '<h3>Langkah</h3>' + d.steps.map(function (s, i) { return '<div class="card" style="box-shadow:none;margin-bottom:8px;padding:12px"><div class="row" style="align-items:flex-end"><label class="f" style="width:110px;margin:0">ID<input type="text" name="sid' + i + '" maxlength="30" value="' + esc(s.id) + '"></label><label class="f grow" style="margin:0">Aksi<select name="stype' + i + '" data-chg="wf.re">' + Object.keys(STEP).filter(function (k) { return (k !== 'email.draft' || S.b.google_enabled) && (k !== 'ai.summarize' || S.b.plan.wfAi); }).map(function (k) { return opt(k, STEP[k][0], s.type); }).join('') + '</select></label><button type="button" class="icon-btn" data-act="wf.rm" data-i="' + i + '" aria-label="Hapus langkah">' + I.trash + '</button></div>' + STEP[s.type][1].map(function (fd) { return '<label class="f" style="margin:8px 0 0">' + fd[1] + '<input type="text" name="s' + i + '_' + fd[0] + '" maxlength="2000" value="' + esc(s.input[fd[0]] == null ? '' : s.input[fd[0]]) + '"></label>'; }).join('') + '</div>'; }).join('') +
+    '<button type="button" class="btn sm" data-act="wf.add">' + I.plusS + ' Tambah langkah</button><p class="small muted" style="margin-top:6px">Variabel: <code>{{trigger.title}}</code>, <code>{{trigger.amount}}</code>, <code>{{steps.ID.output}}</code>, <code>{{today}}</code>, <code>{{user.name}}</code>.</p>' +
+    '<h3>Batas</h3><div class="grid g2"><label class="f">Maks. percobaan ulang (0–3)<input type="number" name="max_retries" min="0" max="3" value="' + (L.max_retries == null ? 1 : L.max_retries) + '"></label><label class="f">Maks. kredit AI per eksekusi<input type="number" name="max_credits" min="0" max="50" value="' + (L.max_credits == null ? 5 : L.max_credits) + '"></label></div>' +
+    '<div class="row" style="margin-top:8px">' + (WF.id ? '<button type="button" class="btn danger" data-act="wf.del" aria-label="Hapus workflow">' + I.trashS + '</button>' : '') + '<button class="btn primary grow">Simpan</button></div></form>');
+}
+CHG['wf.re'] = function () { wfRead(); wfEditor(); };
+ACT['wf.add'] = function () { wfRead(); if (WF.definition.steps.length >= 10) return toast('Maksimal 10 langkah.', 'err'); WF.definition.steps.push({ id: 'langkah' + (WF.definition.steps.length + 1), type: 'notify', input: {} }); wfEditor(); };
+ACT['wf.rm'] = function (el) { wfRead(); if (WF.definition.steps.length < 2) return toast('Minimal satu langkah.', 'err'); WF.definition.steps.splice(Number(el.getAttribute('data-i')), 1); wfEditor(); };
+FORM.wf = function () { wfRead(); var ids = {}; for (var i = 0; i < WF.definition.steps.length; i++) { var s = WF.definition.steps[i]; if (ids[s.id]) return toast('ID langkah harus unik: ' + s.id, 'err'); ids[s.id] = 1; } var r = { name: WF.name.trim(), definition: WF.definition, enabled: !!WF.enabled }; if (WF.id) r.id = WF.id; done2('Workflow disimpan'); saveRec('workflows', r); };
+ACT['wf.del'] = function () { var id = WF.id; done2('Workflow dihapus'); delRec('workflows', id); };
+
+// ---------- Email (Gmail pemasang) ----------
+var CATC = { tagihan: 'bad', tenggat: 'warn', penting: 'acc', undangan: 'acc', promosi: '', lainnya: '' };
+V.email = function () {
+  var M = S.ui.mail || (S.ui.mail = { q: 'in:inbox newer_than:7d', threads: null, tri: {} }), sel = Object.keys(S.ui.mailSel).filter(function (k) { return S.ui.mailSel[k]; });
+  if (!M.threads && !S.busy.mail) mailLoad();
+  return '<div class="row between" style="margin-bottom:12px"><h1>Email</h1><button class="btn sm" data-act="mail.compose">' + I.editS + ' Draft baru</button></div><form data-form="mailq" class="row" style="margin-bottom:12px"><input type="search" name="q" value="' + esc(M.q) + '" aria-label="Cari Gmail" placeholder="Cari, mis. from:pln is:unread"><button class="btn" aria-label="Cari">' + I.search + '</button></form>' +
+    '<div class="row between" style="margin-bottom:8px"><span class="small muted">Gmail akun pemasang · isi email diperlakukan sebagai data, bukan instruksi</span><button class="btn sm primary"' + (sel.length ? '' : ' disabled') + ' data-act="mail.triage">' + I.sparkS + ' Triase AI (' + S.b.credit_cost.triage + ' kredit)</button></div>' +
+    '<div class="card">' + (!M.threads ? '<div class="empty"><span class="spin" style="display:inline-block"></span></div>' : M.threads.length ? '<div class="list">' + M.threads.map(function (t) { var tr = M.tri[t.id]; return '<div class="item" style="align-items:flex-start"><input type="checkbox" data-chg="mail.sel" data-id="' + t.id + '"' + (S.ui.mailSel[t.id] ? ' checked' : '') + ' aria-label="Pilih email" style="margin-top:6px;width:18px;height:18px"><div class="grow tap" data-act="mail.open" data-id="' + t.id + '" style="cursor:pointer;min-width:0"><div class="t ell">' + (t.unread ? '● ' : '') + esc(t.subject) + '</div><div class="small muted ell">' + esc(t.from) + ' · ' + fmtDT(t.date) + '</div><div class="small muted ell">' + esc(t.snippet) + '</div>' + (tr ? '<div class="act"><div><span class="tag ' + (CATC[tr.category] || '') + '">' + esc(tr.category) + '</span> ' + esc(tr.summary) + '<div class="small muted">Saran: ' + esc(tr.action) + '</div></div></div>' : '') + '</div></div>'; }).join('') + '</div>' : empty(I.mailL, 'Tidak ada email yang cocok')) + '</div>';
+};
+function mailLoad() { var M = S.ui.mail; S.busy.mail = 1; call('gmail.search', { q: M.q, max: 15 }).then(function (d) { delete S.busy.mail; M.threads = d.threads; if (S.view === 'email') render(); }).catch(function (e) { delete S.busy.mail; M.threads = []; fail(e); if (S.view === 'email') render(); }); }
+FORM.mailq = function (o) { S.ui.mail.q = o.q || 'in:inbox'; S.ui.mail.threads = null; S.ui.mailSel = {}; render(); };
+CHG['mail.sel'] = function (el) { S.ui.mailSel[el.getAttribute('data-id')] = el.checked; render(); };
+ACT['mail.triage'] = function (el) { var ids = Object.keys(S.ui.mailSel).filter(function (k) { return S.ui.mailSel[k]; }); busy(el, 1); var run = function () { call('gmail.triage', { ids: ids, run_id: uuid() }).then(function (d) { d.items.forEach(function (x) { S.ui.mail.tri[x.id] = x; }); S.b.credits = d.credits; S.ui.mailSel = {}; render(); }).catch(function (e) { busy(el, 0); if (e.code === 'CONSENT') consentAsk(run); else fail(e); }); }; run(); };
+ACT['mail.open'] = function (el) {
+  modal('Email', '<div class="empty"><span class="spin" style="display:inline-block"></span></div>');
+  call('gmail.thread', { id: el.getAttribute('data-id') }).then(function (d) {
+    if (!S.modal) return; var last = d.messages[d.messages.length - 1], addr = (last.from.match(/<([^>]+)>/) || [0, last.from])[1];
+    modal(d.subject, (d.injection_flags ? '<div class="banner warn" role="alert">Email ini memuat teks yang tampak seperti instruksi untuk AI. Asisten tidak akan menurutinya.</div>' : '') + d.messages.map(function (m) { return '<div class="card" style="box-shadow:none;margin:10px 0"><div class="small muted">' + esc(m.from) + ' · ' + fmtDT(m.date) + '</div><div class="pre small" style="margin-top:6px;max-height:220px;overflow:auto">' + esc(m.body) + '</div></div>'; }).join('') + '<button class="btn primary block" data-act="mail.compose" data-to="' + esc(addr) + '" data-s="' + esc('Re: ' + d.subject) + '">Buat draft balasan</button>');
+  }).catch(function (e) { closeModal(); fail(e); });
+};
+ACT['mail.compose'] = function (el) { modal('Draft email', '<form data-form="draft" class="stack" style="gap:2px"><label class="f">Kepada<input type="text" name="to" required value="' + esc(el.getAttribute('data-to') || '') + '"></label><label class="f">Subjek<input type="text" name="subject" required maxlength="250" value="' + esc(el.getAttribute('data-s') || '') + '"></label><label class="f">Isi<textarea name="body" required style="min-height:160px"></textarea></label><p class="small muted">Disimpan sebagai draft di Gmail. Pengiriman selalu memerlukan persetujuan terpisah.</p><button class="btn primary block">Simpan draft</button></form>'); };
+FORM.draft = function (o, f) {
+  var b = $('button.primary', f); busy(b, 1);
+  call('tool.request', { tool: 'email.draft', args: o }).then(function (d) {
+    modal('Draft tersimpan', '<div class="stack"><p>' + esc(d.result.summary) + '</p><div class="row"><button class="btn grow" data-act="modal.close">Selesai</button><button class="btn primary grow" id="sendReq">Minta kirim…</button></div></div>');
+    $('#sendReq').onclick = function () { busy(this, 1); call('tool.request', { tool: 'email.send', args: { draft_id: d.result.draft_id } }).then(function (r) { S.b.approvals.push(r.approval); persist(); closeModalDom(); Nav.silentBack(); S.ui.autoTab = 'ap'; go('auto'); toast('Tinjau lalu setujui untuk mengirim.'); }).catch(fail); };
+  }).catch(function (e) { busy(b, 0); fail(e); });
+};
+
+// ---------- Anggota / keluarga ----------
+V.people = function () {
+  var t = S.b.tenant, mg = can('members.manage'), roles = t.tenant_type === 'family' ? [['guardian', 'Wali'], ['family_member', 'Anggota keluarga'], ['viewer', 'Pelihat']] : t.tenant_type === 'personal' ? [['viewer', 'Pelihat']] : [['admin', 'Admin'], ['member', 'Anggota'], ['viewer', 'Pelihat'], ['support', 'Support']];
+  return '<div class="row between" style="margin-bottom:12px"><h1>Anggota</h1>' + (mg ? '<button class="btn sm primary" data-act="mem2.add">' + I.plusS + ' Tambah</button>' : '') + '</div>' +
+    '<div class="card" style="margin-bottom:12px"><div class="row between wrap"><div><b>' + esc(t.name) + '</b><div class="small muted">Ruang ' + { personal: 'pribadi', family: 'keluarga', business: 'bisnis', enterprise: 'enterprise' }[t.tenant_type] + ' · ' + S.b.members.length + ' / ' + S.b.plan.members + ' anggota · peran Anda: ' + esc(S.b.role_name) + '</div></div><button class="btn sm" data-act="ten.list">Ganti / buat ruang</button></div></div>' +
+    '<div class="card"><div class="list">' + S.b.members.map(function (m) { var own = m.role === 'owner'; return '<div class="item">' + avatar(m, 'sm', true) + '<div class="grow" style="min-width:0"><div class="t ell">' + esc(m.display_name) + (m.user_id === S.b.user.id ? ' (Anda)' : '') + '</div><div class="row wrap small" style="gap:6px"><span class="tag acc">' + esc(S.b.roles_label ? '' : ({ owner: 'Pemilik', admin: 'Admin', member: 'Anggota', guardian: 'Wali', family_member: 'Anggota keluarga', viewer: 'Pelihat', support: 'Support' })[m.role]) + '</span>' + (m.minor ? '<span class="tag warn">Anak</span>' : '') + (m.status !== 'active' ? '<span class="tag bad">Nonaktif</span>' : '') + (m.email ? '<span class="muted ell">' + esc(m.email) + '</span>' : '') + '</div></div>' + (mg && !own && m.user_id !== S.b.user.id ? '<button class="icon-btn" data-act="mem2.edit" data-id="' + m.user_id + '" aria-label="Kelola ' + esc(m.display_name) + '">' + I.gear + '</button>' : '') + '</div>'; }).join('') + '</div></div>' +
+    '<p class="small muted" style="margin-top:10px">Data bertanda “Privat” hanya terlihat pemiliknya — termasuk dari admin. Memori selalu privat.</p><span class="hide" id="roleOpts" data-r="' + esc(JSON.stringify(roles)) + '"></span>';
+};
+function roleSel(cur) { return JSON.parse($('#roleOpts').getAttribute('data-r')).map(function (r) { return opt(r[0], r[1], cur); }).join(''); }
+ACT['mem2.add'] = function () { modal('Tambah anggota', '<form data-form="madd" class="stack" style="gap:2px"><label class="f">Nama<input type="text" name="name" required maxlength="160"></label><label class="f">Email<input type="email" name="email" required></label><label class="f">Kata sandi sementara (min. 8)<input type="text" name="password" required minlength="8"></label><label class="f">Peran<select name="role">' + roleSel('') + '</select></label>' + (S.b.tenant.tenant_type === 'family' ? '<label class="row small"><input type="checkbox" name="minor"> Akun anak — saya walinya dan menyetujui pembuatan akun ini (AI dimatikan sampai saya izinkan)</label>' : '') + '<button class="btn primary block" style="margin-top:8px">Tambah</button></form>'); };
+FORM.madd = function (o, f) { var b = $('button.primary', f); busy(b, 1); call('members.add', o).then(function (d) { S.b.members = d.members; persist(); closeModal(); toast('Anggota ditambahkan', 'ok'); }).catch(function (e) { busy(b, 0); fail(e); }); };
+ACT['mem2.edit'] = function (el) { var m = S.b.members.filter(function (x) { return x.user_id === el.getAttribute('data-id'); })[0]; modal(m.display_name, '<form data-form="medit" class="stack" style="gap:2px"><input type="hidden" name="user_id" value="' + m.user_id + '"><label class="f">Peran<select name="role">' + roleSel(m.role) + '</select></label><label class="row between" style="margin:8px 0">Akun aktif ' + sw('active', m.status === 'active') + '</label><label class="row between" style="margin:8px 0">Boleh memakai AI ' + sw('ai_allowed', m.ai_allowed) + '</label><div class="row" style="margin-top:8px"><button type="button" class="btn danger" data-act="mem2.rm" data-id="' + m.user_id + '">Keluarkan</button><button class="btn primary grow">Simpan</button></div></form>'); };
+FORM.medit = function (o, f) { call('members.update', { user_id: o.user_id, role: o.role, status: o.active ? 'active' : 'suspended', ai_allowed: o.ai_allowed }).then(function (d) { S.b.members = d.members; persist(); closeModal(); toast('Tersimpan', 'ok'); }).catch(fail); };
+ACT['mem2.rm'] = function (el) { call('members.remove', { user_id: el.getAttribute('data-id') }).then(function (d) { S.b.members = d.members; persist(); closeModal(); toast('Anggota dikeluarkan'); }).catch(fail); };
+ACT['ten.list'] = function () { modal('Ruang kerja', '<div class="list">' + S.b.tenants.map(function (t) { return '<div class="item"><div class="grow"><div class="t">' + esc(t.name) + '</div><div class="small muted">' + esc(t.tenant_type) + ' · ' + esc(t.role) + '</div></div>' + (t.id === S.b.tenant.id ? '<span class="tag ok">Aktif</span>' : '<button class="btn sm" data-act="ten.sw" data-id="' + t.id + '">Pindah</button>') + '</div>'; }).join('') + '</div><h3 style="margin-top:14px">Buat ruang baru</h3><form data-form="tnew" class="row wrap" style="margin-top:8px"><input type="text" name="name" required maxlength="160" placeholder="Nama ruang" aria-label="Nama ruang" style="flex:1;min-width:160px"><select name="tenant_type" aria-label="Jenis" style="width:auto">' + opt('family', 'Keluarga', 'family') + opt('business', 'Bisnis') + opt('personal', 'Pribadi') + '</select><button class="btn primary">Buat</button></form>'); };
+function swapTenant(d) { S.tok = d.token; LS.set('apla.tok', S.tok); S.q = []; S.msgs = {}; S.conv = null; S.runs = null; LS.del('apla.conv'); applyBoot(d.boot); closeModalDom(); Nav.silentBack(); $('#root').innerHTML = ''; S.view = 'home'; render(true); toast('Ruang: ' + d.boot.tenant.name, 'ok'); }
+ACT['ten.sw'] = function (el) { busy(el, 1); call('tenant.switch', { tenant_id: el.getAttribute('data-id') }).then(swapTenant).catch(function (e) { busy(el, 0); fail(e); }); };
+FORM.tnew = function (o, f) { var b = $('button', f); busy(b, 1); call('tenant.create', o).then(swapTenant).catch(function (e) { busy(b, 0); fail(e); }); };
+
+// ---------- Menu (mobile) ----------
+V.more = function () { return '<h1 style="margin-bottom:14px">Menu</h1><div class="menu-grid">' + NAV.filter(function (n) { return navOk(n[0]); }).map(function (n) { return '<button data-act="go" data-v="' + n[0] + '"><span class="ic">' + I[n[2]] + '</span>' + n[1] + '</button>'; }).join('') + '<button data-act="logout"><span class="ic" style="color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)">' + I.out + '</span>Keluar</button></div>'; };
+
+// ---------- Profil & tema ----------
+V.profile = function () {
+  var u = S.b.user, t = theme();
+  return '<h1 style="margin-bottom:14px">Profil</h1><div class="grid gd2"><div class="card stack center" style="align-items:center">' + avatar(u, 'lg', true) + '<div><h2>' + esc(u.display_name) + '</h2><div class="muted small">' + esc(u.email) + ' · ' + esc(S.b.role_name) + '</div></div><div class="row wrap" style="justify-content:center"><button class="btn sm" data-act="photo.pick">' + I.camS + ' Ganti foto</button>' + (u.photo_id ? '<button class="btn sm" data-act="zoom" data-blob-id="' + esc(u.photo_id) + '">' + I.searchS + ' Perbesar</button><button class="btn sm danger" data-act="photo.rm">Hapus</button>' : '') + '</div>' +
+    '<form data-form="prof" class="stack" style="width:100%;gap:2px;text-align:left"><label class="f">Nama tampilan<input type="text" name="display_name" required maxlength="160" value="' + esc(u.display_name) + '"></label><label class="row between" style="margin:6px 0 10px"><span><b>Verifikasi 2 langkah</b><br><span class="small muted">Kode dikirim ke email saat masuk</span></span>' + sw('mfa', u.mfa) + '</label><button class="btn primary block">Simpan profil</button></form></div>' +
+    '<div class="stack"><div class="card stack"><h2>Tampilan</h2><div><div class="small muted" style="margin-bottom:6px">Mode</div><div class="chips">' + [['auto', 'Otomatis'], ['light', 'Terang'], ['dark', 'Gelap']].map(function (m) { return '<button class="chip' + ((t.mode || 'auto') === m[0] ? ' on' : '') + '" data-act="th.mode" data-m="' + m[0] + '" aria-pressed="' + ((t.mode || 'auto') === m[0]) + '">' + m[1] + '</button>'; }).join('') + '</div></div>' +
+    '<div><div class="small muted" style="margin-bottom:6px">Warna aksen</div><div class="sw-acc">' + Object.keys(ACCENTS).map(function (k) { return '<button class="' + (t.accent === k ? 'on' : '') + '" style="background:linear-gradient(135deg,' + ACCENTS[k][0] + ',' + ACCENTS[k][1] + ')" data-act="th.acc" data-a="' + k + '" aria-label="Aksen ' + k + '" aria-pressed="' + (t.accent === k) + '"></button>'; }).join('') + '<input type="color" value="' + esc(t.custom || '#4f46e5') + '" data-chg="th.custom" aria-label="Warna kustom" style="width:36px;height:36px;padding:0;border:0;background:none"></div></div>' +
+    '<label class="row between"><span><b>Tema dinamis</b><br><span class="small muted">Aksen berubah mengikuti waktu (pagi, siang, sore, malam)</span></span>' + sw('dyn', t.accent === 'dynamic', 'th.dyn') + '</label></div>' +
+    '<div class="card stack"><h2>Keamanan</h2><button class="btn" data-act="pw.open">Ganti kata sandi</button><button class="btn danger" data-act="logout">' + I.outS + ' Keluar</button></div></div></div>';
+};
+ACT['photo.pick'] = function () { pickImage(720, 'image/jpeg', function (d) { toast('Mengunggah foto…'); call('profile.save', { photo: d }).then(function (r) { S.b.user = r.user; LS.set('apla.blob.' + r.user.photo_id, d); S.b.members.forEach(function (m) { if (m.user_id === r.user.id) m.photo_id = r.user.photo_id; }); persist(); render(); toast('Foto profil diperbarui', 'ok'); }).catch(fail); }); };
+ACT['photo.rm'] = function () { call('profile.save', { photo: null }).then(function (r) { S.b.user = r.user; S.b.members.forEach(function (m) { if (m.user_id === r.user.id) m.photo_id = ''; }); persist(); render(); }).catch(fail); };
+FORM.prof = function (o, f) { var b = $('button.primary', f); busy(b, 1); call('profile.save', { display_name: o.display_name, mfa: o.mfa }).then(function (r) { S.b.user = r.user; persist(); render(); toast('Profil disimpan', 'ok'); }).catch(function (e) { busy(b, 0); fail(e); }); };
+ACT['th.mode'] = function (el) { setTheme({ mode: el.getAttribute('data-m') }); render(); };
+ACT['th.acc'] = function (el) { setTheme({ accent: el.getAttribute('data-a') }); render(); };
+CHG['th.custom'] = function (el) { setTheme({ accent: 'custom', custom: el.value, custom2: el.value }); render(); };
+CHG['th.dyn'] = function (el) { setTheme({ accent: el.checked ? 'dynamic' : 'indigo' }); render(); };
+ACT['pw.open'] = function () { modal('Ganti kata sandi', '<form data-form="pw" class="stack" style="gap:2px"><label class="f">Kata sandi lama<input type="password" name="old" required autocomplete="current-password"></label><label class="f">Kata sandi baru (min. 8)<input type="password" name="new" required minlength="8" autocomplete="new-password"></label><p class="small muted">Semua sesi di perangkat lain akan dikeluarkan.</p><button class="btn primary block">Ganti</button></form>'); };
+FORM.pw = function (o, f) { var b = $('button', f); busy(b, 1); call('auth.password', o).then(function (d) { S.tok = d.token; LS.set('apla.tok', S.tok); closeModal(); toast('Kata sandi diganti', 'ok'); }).catch(function (e) { busy(b, 0); fail(e); }); };
+
+// ---------- Pengaturan (pengelola) ----------
+var PROV = { gemini: 'Google Gemini', openai: 'OpenAI', anthropic: 'Anthropic Claude', compatible: 'Endpoint kompatibel OpenAI (open-source)' };
+V.settings = function () {
+  var t = S.b.tenant, s = t.settings || {}, a = s.ai || {}, m = a.models || {};
+  return '<h1 style="margin-bottom:14px">Pengaturan</h1><div class="stack"><div class="card row between wrap"><div><h2>Judul & logo aplikasi</h2><p class="small muted">' + esc(brand().title) + '</p></div><button class="btn" data-act="brand.edit">' + I.editS + ' Ubah</button></div>' +
+    '<form data-form="set" class="card stack" style="gap:2px"><h2 style="margin-bottom:8px">Ruang & otonomi</h2><div class="grid g2"><label class="f">Nama ruang<input type="text" name="name" required maxlength="160" value="' + esc(t.name) + '"></label><label class="f">Zona waktu (IANA)<input type="text" name="timezone" value="' + esc(t.timezone || 'Asia/Jakarta') + '" list="tzs"><datalist id="tzs"><option value="Asia/Jakarta"><option value="Asia/Makassar"><option value="Asia/Jayapura"><option value="Asia/Singapore"><option value="UTC"></datalist></label></div>' +
+    '<label class="f">Level otonomi asisten<select name="autonomy">' + opt('L0', 'L0 Advisory — hanya memberi saran, tidak mengeksekusi', s.autonomy) + opt('L1', 'L1 Assisted — semua aksi menunggu persetujuan', s.autonomy) + opt('L2', 'L2 Approval — aksi ringan langsung, sisanya minta izin (disarankan)', s.autonomy || 'L2') + opt('L3', 'L3 Bounded — aksi menengah otomatis (maks 20/hari)', s.autonomy) + '</select></label><p class="small muted">Di semua level, mengirim email selalu butuh persetujuan. Tidak ada transfer uang atau penghapusan otomatis.</p>' +
+    '<label class="f">Hapus otomatis percakapan setelah (hari, 0 = tidak pernah)<input type="number" name="retention_days" min="0" max="3650" value="' + (s.retention_days || 0) + '"></label><button class="btn primary">Simpan</button></form>' +
+    '<form data-form="ai" class="card stack" style="gap:2px"><h2 style="margin-bottom:8px">Penyedia AI</h2><div class="grid g2"><label class="f">Utama<select name="provider">' + Object.keys(PROV).map(function (k) { return opt(k, PROV[k], a.provider || 'gemini'); }).join('') + '</select></label><label class="f">Cadangan (fallback)<select name="fallback">' + opt('', '— tidak ada —', a.fallback || '') + Object.keys(PROV).map(function (k) { return opt(k, PROV[k], a.fallback); }).join('') + '</select></label></div>' +
+    Object.keys(PROV).map(function (k) { return '<div class="card" style="box-shadow:none;margin-bottom:8px;padding:12px"><div class="row between"><b>' + PROV[k] + '</b>' + (t.has_key[k] ? '<span class="tag ok">Key tersimpan</span>' : '<span class="tag">Belum ada key</span>') + '</div><div class="grid g2" style="margin-top:8px"><label class="f" style="margin:0">Model<input type="text" name="m_' + k + '" maxlength="100" placeholder="' + esc(S.b.ai_defaults ? S.b.ai_defaults[k] : '') + '" value="' + esc(m[k] || '') + '"></label><label class="f" style="margin:0">API key ' + (t.has_key[k] ? '(kosongkan = tetap)' : '') + '<input type="password" name="k_' + k + '" autocomplete="off" maxlength="400"></label></div>' + (k === 'compatible' ? '<label class="f" style="margin:8px 0 0">Base URL (https://…/v1)<input type="url" name="compat_base" value="' + esc(a.compat_base || '') + '"></label>' : '') + '<div class="row" style="margin-top:8px"><button type="button" class="btn sm" data-act="ai.test" data-p="' + k + '">Tes koneksi</button>' + (t.has_key[k] ? '<button type="button" class="btn sm danger" data-act="ai.rmkey" data-p="' + k + '">Hapus key</button>' : '') + '<span class="small muted" id="h_' + k + '"></span></div></div>'; }).join('') +
+    '<div class="grid g2"><label class="f">Harga input (USD / 1 jt token)<input type="number" name="price_in" min="0" step="any" value="' + (a.price_in || 0) + '"></label><label class="f">Harga output (USD / 1 jt token)<input type="number" name="price_out" min="0" step="any" value="' + (a.price_out || 0) + '"></label></div><p class="small muted">API key disimpan di Script Properties server, tidak pernah dikirim ke perangkat. Kosongkan model untuk memakai bawaan. Isi harga sesuai tarif resmi penyedia agar estimasi biaya akurat.</p><button class="btn primary">Simpan pengaturan AI</button></form>' +
+    (S.b.globals ? '<div class="card stack"><h2>Pemasang (mode SaaS)</h2><label class="row between"><span><b>Izinkan pendaftaran mandiri</b><br><span class="small muted">Pengguna baru membuat ruang sendiri di instalasi ini</span></span>' + sw('allow_register', S.b.globals.allow_register, 'glob') + '</label><form data-form="saas" class="stack" style="gap:2px"><h3>Tetapkan paket tenant (setelah pembayaran)</h3><div class="grid g2"><label class="f">Email pemilik tenant<input type="email" name="email" required></label><label class="f">Paket<select name="plan">' + Object.keys(S.b.plans).map(function (k) { return opt(k, S.b.plans[k].name, 'plus'); }).join('') + '</select></label><label class="f">Durasi (hari)<input type="number" name="days" value="30" min="1"></label><label class="f">Tambah kredit top-up<input type="number" name="credits" value="0" min="0"></label></div><button class="btn">Terapkan</button></form></div>' : '') + '</div>';
+};
+FORM.set = function (o, f) { var b = $('button.primary', f); busy(b, 1); call('settings.save', { name: o.name, timezone: o.timezone, autonomy: o.autonomy, retention_days: o.retention_days }).then(function (d) { S.b.tenant = d.tenant; persist(); render(); toast('Pengaturan disimpan', 'ok'); }).catch(function (e) { busy(b, 0); fail(e); }); };
+FORM.ai = function (o, f) {
+  var b = $('button.primary', f), models = {}, chain = Promise.resolve(); busy(b, 1);
+  Object.keys(PROV).forEach(function (k) { models[k] = o['m_' + k]; if (o['k_' + k]) chain = chain.then(function () { return call('ai.key.set', { provider: k, key: o['k_' + k] }); }); });
+  chain.then(function () { return call('settings.save', { ai: { provider: o.provider, fallback: o.fallback, models: models, compat_base: o.compat_base, price_in: o.price_in, price_out: o.price_out } }); }).then(function (d) { S.b.tenant = d.tenant; persist(); render(); toast('Pengaturan AI disimpan', 'ok'); }).catch(function (e) { busy(b, 0); fail(e); });
+};
+ACT['ai.test'] = function (el) { var p = el.getAttribute('data-p'), o = $('#h_' + p); o.textContent = 'Menguji…'; call('ai.health', { provider: p }).then(function (d) { o.textContent = d.ok ? '✓ ' + d.model + ' · ' + d.ms + ' ms' : '✗ ' + d.message; o.style.color = d.ok ? 'var(--ok)' : 'var(--danger)'; }).catch(function (e) { o.textContent = '✗ ' + e.message; }); };
+ACT['ai.rmkey'] = function (el) { call('ai.key.set', { provider: el.getAttribute('data-p'), key: '' }).then(function (d) { S.b.tenant = d.tenant; persist(); render(); toast('API key dihapus'); }).catch(fail); };
+CHG.glob = function (el) { call('global.save', { allow_register: el.checked }).then(function (d) { S.b.globals = d.globals; persist(); toast('Tersimpan', 'ok'); }).catch(function (e) { el.checked = !el.checked; fail(e); }); };
+FORM.saas = function (o, f) { call('saas.setplan', o).then(function (d) { toast(d.tenant + ' → ' + d.plan + ' s.d. ' + fmtD(d.exp), 'ok'); f.reset(); refresh(); }).catch(fail); };
+
+// ---------- Langganan & AI credits ----------
+V.billing = function () {
+  var p = S.b.plan, c = S.b.credits, plans = S.b.plans, U = S.usage;
+  if (!U && !S.busy.usage) { S.busy.usage = 1; call('usage.get', {}).then(function (d) { S.usage = d; delete S.busy.usage; if (S.view === 'billing') render(); }).catch(function () { delete S.busy.usage; }); }
+  return '<h1 style="margin-bottom:14px">Langganan</h1><div class="stack"><div class="grid gd2"><div class="card stack"><div class="row between"><h2>Paket ' + esc(p.name) + '</h2><span class="tag ' + (p.code === 'free' ? '' : 'ok') + '">' + (p.exp ? 's.d. ' + fmtD(p.exp) : 'Gratis') + '</span></div><div class="small muted">' + p.credits + ' kredit/bulan · ' + p.members + ' anggota · ' + p.workflows + ' workflow aktif · ' + p.docs + ' dokumen · Gmail/Kalender ' + (p.google ? '✓' : '✗') + '</div>' +
+    '<div><div class="small muted">ID Instalasi (kirim ke penyedia saat membeli lisensi)</div><div class="row"><b class="num">' + esc(S.b.install_id) + '</b><button class="btn sm" data-act="copy" data-t="' + esc(S.b.install_id) + '">Salin</button></div></div>' +
+    (can('billing.manage') ? '<form data-form="lic" class="stack" style="gap:6px"><label class="f" style="margin:0">Kode lisensi / voucher kredit<textarea name="token" required placeholder="Tempel kode dari penyedia" style="min-height:70px;font-family:ui-monospace,monospace;font-size:12px"></textarea></label>' + (S.b.license_ready ? '' : '<div class="banner warn small">Kunci publik penyedia belum dipasang pada instalasi ini, sehingga lisensi belum bisa diverifikasi.</div>') + '<button class="btn primary">Aktifkan</button></form>' : '<p class="small muted">Hanya pemilik ruang yang dapat mengaktifkan lisensi.</p>') + '</div>' +
+    '<div class="card stack"><h2>AI credits</h2><div class="grid g3"><div class="stat"><b class="num">' + c.total + '</b><span>Total</span></div><div class="stat"><b class="num">' + c.monthly + '</b><span>Bulanan (hangus akhir bulan)</span></div><div class="stat"><b class="num">' + c.topup + '</b><span>Top-up (tidak hangus)</span></div></div><div class="small muted">Biaya: chat ' + S.b.credit_cost.chat + ' · ringkas dokumen ' + S.b.credit_cost.summarize + ' · ekstraksi PDF/gambar ' + S.b.credit_cost.extract + ' · triase email ' + S.b.credit_cost.triage + ' · langkah AI workflow ' + S.b.credit_cost.workflow + '. Mode aturan lokal gratis. Permintaan gagal dikembalikan otomatis.</div>' +
+    (U ? '<div class="small">30 hari: <b>' + U.usage.calls + '</b> panggilan AI · ' + U.usage.input_tokens.toLocaleString(LOC) + ' token masuk · ' + U.usage.output_tokens.toLocaleString(LOC) + ' token keluar' + (U.usage.cost_usd ? ' · ≈ US$' + U.usage.cost_usd.toFixed(4) : '') + ' · integritas ledger ' + (U.ledger_integrity ? '<span class="tag ok">utuh</span>' : '<span class="tag bad">RUSAK</span>') + '</div>' : '') + '</div></div>' +
+    '<div class="card"><h2 style="margin-bottom:8px">Perbandingan paket</h2><div class="scroll-x"><table class="t"><thead><tr><th>Paket</th><th>Harga uji/bulan</th><th>Kredit</th><th>Anggota</th><th>Workflow</th><th>Dokumen</th><th>Gmail/Kalender</th></tr></thead><tbody>' + Object.keys(plans).map(function (k) { var x = plans[k]; return '<tr' + (k === p.code ? ' style="background:var(--surface2)"' : '') + '><td><b>' + esc(x.name) + '</b></td><td class="num">' + (x.price < 0 ? 'Custom' : rp(x.price)) + '</td><td class="num">' + x.credits + '</td><td class="num">' + x.members + '</td><td class="num">' + x.workflows + '</td><td class="num">' + x.docs + '</td><td>' + (x.google ? '✓' : '—') + '</td></tr>'; }).join('') + '</tbody></table></div><p class="small muted" style="margin-top:8px">Harga adalah hipotesis uji pasar; harga final ditentukan penyedia.</p></div>' +
+    (U && U.ledger.length ? '<div class="card"><h2 style="margin-bottom:8px">Riwayat kredit</h2><div class="scroll-x"><table class="t"><thead><tr><th>Waktu</th><th>Jenis</th><th>Jumlah</th><th>Keterangan</th></tr></thead><tbody>' + U.ledger.map(function (e) { return '<tr><td>' + fmtDT(e.created_at) + '</td><td>' + esc(e.entry_type) + ' · ' + esc(e.bucket) + '</td><td class="num" style="color:var(--' + (e.amount < 0 ? 'danger' : 'ok') + ')">' + (e.amount > 0 ? '+' : '') + e.amount + '</td><td>' + esc(e.ref) + '</td></tr>'; }).join('') + '</tbody></table></div></div>' : '') + '</div>';
+};
+FORM.lic = function (o, f) { var b = $('button.primary', f); busy(b, 1); call('license.apply', { token: o.token }).then(function (d) { S.usage = null; toast(d.kind === 'credit' ? '+' + d.credits + ' kredit ditambahkan' : 'Paket ' + d.plan.name + ' aktif', 'ok'); refresh(); }).catch(function (e) { busy(b, 0); fail(e); }); };
+
+// ---------- Privasi ----------
+V.privacy = function () {
+  var c = S.b.user.consents || {}, sh = S.b.shares;
+  function row(k, t, d, on) { return '<label class="item"><div class="grow"><div class="t">' + t + '</div><div class="small muted">' + d + '</div></div>' + sw(k, on, 'consent') + '</label>'; }
+  return '<h1 style="margin-bottom:14px">Pusat Privasi</h1><div class="stack"><div class="card"><h2>Persetujuan</h2><div class="list">' +
+    row('ai_external', 'Pemrosesan oleh penyedia AI eksternal', 'Permintaan & konteks relevan dikirim ke penyedia AI pilihan pengelola. Tanpa ini, hanya mode aturan lokal.', !!c.ai_external) +
+    row('memory', 'Gunakan memori saat menjawab', 'Memori aktif Anda disertakan sebagai konteks.', c.memory !== false) +
+    row('sensitive_ai', 'Izinkan memori sensitif dikirim ke AI', 'Bawaan mati. Memori bertanda sensitif tidak pernah keluar perangkat/server.', !!c.sensitive_ai) +
+    row('email_notif', 'Email pengingat', 'Kirim pengingat ke ' + esc(S.b.user.email) + '.', !!c.email_notif) + '</div></div>' +
+    '<div class="card stack"><h2>Data Anda</h2><p class="small muted">Sesuai hak subjek data (UU No. 27/2022 tentang Pelindungan Data Pribadi): akses, salinan, perbaikan, dan penghapusan.</p><div class="row wrap"><button class="btn" data-act="pv.export">Unduh semua data saya (JSON)</button><button class="btn danger" data-act="pv.del" data-s="data">Hapus data saya di ruang ini</button>' + (S.b.user.is_installer ? '' : '<button class="btn danger" data-act="pv.del" data-s="account">Hapus akun</button>') + '</div><p class="small muted">Percakapan dihapus otomatis: ' + ((S.b.tenant.settings.retention_days || 0) > 0 ? 'setelah ' + S.b.tenant.settings.retention_days + ' hari' : 'tidak diatur') + (can('settings.manage') ? ' (ubah di Pengaturan)' : '') + '.</p></div>' +
+    '<div class="card"><h2>Tautan berbagi</h2>' + (sh.length ? '<div class="list">' + sh.map(function (s) { var dead = s.revoked || new Date(s.exp) < new Date(); return '<div class="item"><div class="grow"><div class="t">' + esc(s.title) + '</div><div class="small muted">' + (s.revoked ? 'Dicabut' : new Date(s.exp) < new Date() ? 'Kedaluwarsa' : 'Berlaku s.d. ' + fmtD(s.exp)) + ' · ' + s.views + ' kali dilihat</div></div>' + (dead ? '' : '<button class="btn sm danger" data-act="sh.revoke" data-id="' + s.id + '">Cabut</button>') + '</div>'; }).join('') + '</div>' : '<p class="small muted" style="margin-top:6px">Belum ada tautan publik. Tidak ada data yang dibagikan tanpa pratinjau dan persetujuan Anda.</p>') + '</div>' +
+    (can('audit.view') ? '<div class="card"><div class="row between"><h2>Jejak audit</h2><button class="btn sm" data-act="audit.load">Muat</button></div><div id="audit" class="scroll-x"></div></div>' : '') + '</div>';
+};
+ACT['pv.export'] = function (el) { busy(el, 1); call('privacy.export', {}).then(function (d) { busy(el, 0); download('data-saya-' + dayKey(new Date()) + '.json', JSON.stringify(d, null, 2)); toast('Data diunduh', 'ok'); }).catch(function (e) { busy(el, 0); fail(e); }); };
+ACT['pv.del'] = function (el) { var s = el.getAttribute('data-s'); modal(s === 'account' ? 'Hapus akun' : 'Hapus data saya', '<form data-form="pvdel" class="stack"><input type="hidden" name="scope" value="' + s + '"><div class="banner warn" role="alert">' + (s === 'account' ? 'Akun, ruang milik Anda, dan seluruh isinya dihapus permanen.' : 'Semua tugas, agenda, memori, dokumen, percakapan, dan catatan keuangan milik Anda di ruang ini dihapus permanen.') + ' Tindakan ini tidak dapat dibatalkan.</div><label class="f">Ketik kata sandi untuk konfirmasi<input type="password" name="password" required autocomplete="current-password"></label><button class="btn danger block">Hapus permanen</button></form>'); };
+FORM.pvdel = function (o, f) { var b = $('button', f); busy(b, 1); call('privacy.delete', o).then(function (d) { closeModalDom(); Nav.silentBack(); if (d.account) { clearLocal(); renderAuth(); loadPublic(); toast('Akun dihapus'); } else { S.q = []; toast(d.deleted + ' data dihapus', 'ok'); refresh(); } }).catch(function (e) { busy(b, 0); fail(e); }); };
+ACT['sh.revoke'] = function (el) { var id = el.getAttribute('data-id'); call('share.revoke', { id: id }).then(function () { S.b.shares.forEach(function (s) { if (s.id === id) s.revoked = true; }); persist(); render(); toast('Tautan dicabut', 'ok'); }).catch(fail); };
+ACT['audit.load'] = function (el) { busy(el, 1); call('audit.list', {}).then(function (d) { busy(el, 0); var nm = {}; S.b.members.forEach(function (m) { nm[m.user_id] = m.display_name; }); $('#audit').innerHTML = '<table class="t" style="margin-top:8px"><thead><tr><th>Waktu</th><th>Pelaku</th><th>Aksi</th><th>Hasil</th></tr></thead><tbody>' + d.items.map(function (i) { return '<tr><td>' + fmtDT(i.ts) + '</td><td>' + esc(nm[i.actor] || '—') + '</td><td>' + esc(i.action) + '</td><td><span class="tag ' + (i.result === 'ok' ? 'ok' : 'bad') + '">' + esc(i.result) + '</span></td></tr>'; }).join('') + '</tbody></table>'; }).catch(function (e) { busy(el, 0); fail(e); }); };
+
+// ---------- Ringkasan mingguan (kartu berbagi) ----------
+function weekStats() {
+  var now = Date.now(), wk = now - 7 * 86400000, ts = D('tasks'), done = ts.filter(function (t) { return t.status === 'done' && t.done_at && new Date(t.done_at).getTime() >= wk; }), open = ts.filter(isOpen), late = open.filter(function (t) { return t.due_at && new Date(t.due_at).getTime() < now; }).length;
+  var days = {}; ts.forEach(function (t) { if (t.done_at) days[dayKey(t.done_at)] = 1; }); var streak = 0, d = new Date(); while (days[dayKey(d)]) { streak++; d.setDate(d.getDate() - 1); }
+  return { tasks_done: done.length, tasks_open: open.length, events: D('events').filter(function (e) { var s = new Date(e.starts_at).getTime(); return s >= wk && s <= now; }).length, streak_days: streak, focus_score: done.length + late ? Math.round(done.length / (done.length + late) * 100) : 0 };
+}
+function drawCard(st, name) {
+  var c = document.createElement('canvas'); c.width = 1080; c.height = 1350; var g = c.getContext('2d'), cs = getComputedStyle(document.documentElement), a1 = cs.getPropertyValue('--accent').trim() || '#4f46e5', a2 = cs.getPropertyValue('--accent2').trim() || '#7c3aed', gr = g.createLinearGradient(0, 0, 1080, 1350);
+  gr.addColorStop(0, a1); gr.addColorStop(1, a2); g.fillStyle = gr; g.fillRect(0, 0, 1080, 1350); g.fillStyle = 'rgba(255,255,255,.08)'; g.beginPath(); g.arc(940, 160, 300, 0, 7); g.fill(); g.beginPath(); g.arc(120, 1250, 260, 0, 7); g.fill();
+  g.fillStyle = '#fff'; g.font = '600 40px system-ui,sans-serif'; g.fillText('Ringkasan 7 hari', 80, 150); g.font = '800 84px system-ui,sans-serif'; g.fillText(name ? name.substring(0, 18) : 'Minggu saya', 80, 260);
+  [['tasks_done', 'Tugas selesai'], ['events', 'Agenda dijalani'], ['streak_days', 'Hari beruntun'], ['focus_score', 'Skor fokus %']].forEach(function (k, i) { var x = 80 + (i % 2) * 480, y = 360 + Math.floor(i / 2) * 400; g.fillStyle = 'rgba(255,255,255,.16)'; g.beginPath(); if (g.roundRect) g.roundRect(x, y, 440, 360, 44); else g.rect(x, y, 440, 360); g.fill(); g.fillStyle = '#fff'; g.font = '800 150px system-ui,sans-serif'; g.fillText(String(st[k[0]]), x + 44, y + 210); g.font = '500 40px system-ui,sans-serif'; g.fillText(k[1], x + 44, y + 290); });
+  g.font = '500 34px system-ui,sans-serif'; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText(brand().title.substring(0, 40), 80, 1250); return c;
+}
+ACT.wrapped = function () {
+  var st = weekStats();
+  modal('Ringkasan mingguan', '<div class="stack"><div id="wrapCv" class="center"></div><div class="banner small">Pratinjau di atas adalah <b>seluruh</b> isi yang akan dibagikan: hanya angka agregat. Judul tugas, email, dokumen, memori, dan transaksi tidak pernah ikut.</div><label class="row small"><input type="checkbox" id="wName" data-chg="wrap.re"> Tampilkan nama saya</label><div class="row wrap"><button class="btn grow" data-act="wrap.dl">Unduh PNG</button><button class="btn grow" data-act="wrap.share">' + I.shareS + ' Bagikan</button></div><button class="btn primary block" data-act="wrap.link">Saya setuju — buat tautan publik (7 hari)</button><div id="wrapLink"></div></div>');
+  CHG['wrap.re']();
+};
+var wrapC = null;
+CHG['wrap.re'] = function () { wrapC = drawCard(weekStats(), $('#wName').checked ? S.b.user.display_name : ''); var im = new Image(); im.src = wrapC.toDataURL('image/png'); im.alt = 'Kartu ringkasan mingguan'; im.style.cssText = 'max-width:100%;max-height:46vh;border-radius:16px;cursor:zoom-in'; im.setAttribute('data-act', 'zoom'); im.setAttribute('data-src', im.src); $('#wrapCv').innerHTML = ''; $('#wrapCv').appendChild(im); };
+ACT['wrap.dl'] = function () { var a = document.createElement('a'); a.href = wrapC.toDataURL('image/png'); a.download = 'ringkasan-mingguan.png'; a.click(); };
+ACT['wrap.share'] = function () { wrapC.toBlob(function (b) { var f = new File([b], 'ringkasan-mingguan.png', { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: 'Ringkasan mingguan' }).catch(function () { }); else { ACT['wrap.dl'](); toast('Perangkat tidak mendukung berbagi langsung; gambar diunduh.'); } }); };
+ACT['wrap.link'] = function (el) { busy(el, 1); call('share.create', { confirm: true, title: 'Ringkasan mingguan', period: '7 hari s.d. ' + fmtD(new Date()), show_name: $('#wName').checked, payload: weekStats(), days: 7 }).then(function (d) { busy(el, 0); S.b.shares.push({ id: d.id, title: d.title, exp: d.exp, revoked: false, views: 0 }); persist(); var u = (S.b.web_url || gasUrl()) + '?share=' + d.id; $('#wrapLink').innerHTML = '<div class="row"><input type="text" readonly value="' + esc(u) + '" aria-label="Tautan"><button class="btn" data-act="copy" data-t="' + esc(u) + '">Salin</button></div><p class="small muted">Berlaku s.d. ' + fmtD(d.exp) + '. Cabut kapan saja di Privasi.</p>'; }).catch(function (e) { busy(el, 0); fail(e); }); };
+
+// ---------- Tentang ----------
+V.about = function () {
+  var a = S.b.app;
+  return '<h1 style="margin-bottom:14px">Tentang</h1><div class="stack"><div class="card stack"><div class="row">' + I.sparkL + '<div><h2>' + esc(a.name) + '</h2><div class="small muted">Versi aplikasi <b>' + esc(VERSION) + '</b> · server ' + esc(a.version) + ' · build ' + esc(a.build) + '</div></div></div><div class="small muted">Mode: ' + (GAS ? 'Web App Apps Script' : 'PWA (dapat dipasang & dibuka offline)') + ' · ID Instalasi ' + esc(S.b.install_id) + '</div>' +
+    '<div class="row wrap"><button class="btn" data-act="legal" data-k="terms">Syarat & Ketentuan</button><button class="btn" data-act="legal" data-k="privacy">Pemberitahuan Privasi</button><button class="btn" data-act="legal" data-k="oss">Lisensi & atribusi</button>' + (GAS ? '' : '<button class="btn" data-act="pwa.update">Periksa pembaruan</button>') + '</div></div>' +
+    '<div class="card"><h2>Agen & tool terdaftar</h2><p class="small muted" style="margin:6px 0">Asisten hanya dapat memakai tool di daftar ini; semuanya divalidasi server.</p><div class="row wrap" style="gap:6px">' + S.b.tools.map(function (t) { return '<span class="tag ' + (t.risk === 'high' ? 'bad' : t.risk === 'medium' ? 'warn' : 'ok') + '">' + esc(t.id) + ' · ' + esc(t.risk) + '</span>'; }).join('') + '</div></div></div>';
+};
+ACT.legal = function (el) { var k = el.getAttribute('data-k'); modal(LEGAL[k][0], '<div class="legal">' + LEGAL[k][1] + '</div>'); };
+ACT['pwa.update'] = function () { if (!navigator.serviceWorker) return toast('Service worker tidak tersedia.'); navigator.serviceWorker.getRegistration().then(function (r) { if (!r) return toast('Belum terpasang sebagai PWA.'); r.update().then(function () { toast('Versi terbaru akan dipakai saat aplikasi dibuka ulang.', 'ok'); }); }); };
+
+// ---------- event global & inisialisasi ----------
+function initApp() {
+  applyTheme(); Nav.init();
+  document.addEventListener('click', function (e) { var el = e.target.closest('[data-act]'); if (!el || el.disabled) return; if (el.tagName === 'A') e.preventDefault(); var fn = ACT[el.getAttribute('data-act')]; if (fn) fn(el, e); });
+  document.addEventListener('submit', function (e) { var f = e.target.closest('form[data-form]'); if (!f) return; e.preventDefault(); var fn = FORM[f.getAttribute('data-form')]; if (fn) fn(formObj(f), f); });
+  document.addEventListener('change', function (e) { var k = e.target.getAttribute && e.target.getAttribute('data-chg'); if (k && CHG[k]) CHG[k](e.target, e); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if ($('#lb')) closeLb(); else if (S.modal) closeModal(); } });
+  window.addEventListener('online', function () { setOnline(true); refresh(); });
+  window.addEventListener('offline', function () { setOnline(false); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) persistNow(); if (!document.hidden && S.tok) { applyTheme(); flush(); if (Date.now() - lastRefresh > 60000) refresh(); } });
+  setInterval(function () { if (S.tok) { flush(); remCheck(); } }, 30000);
+  if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch (e) { } }
+  window.addEventListener('pagehide', persistNow);
+  if (S.tok && S.b) { replayQueue(); render(true); flush(); refresh(); }            // tampil seketika dari cache, lalu segarkan di latar
+  else if (S.tok) { $('#root').innerHTML = '<div class="splash"><div class="spin"></div></div>'; call('boot', {}).then(function (b) { applyBoot(b); render(true); }).catch(function (e) { if (S.tok) { clearLocal(); renderAuth(); loadPublic(); if (e.offline) toast(e.message, 'err'); } }); }
+  else { renderAuth(); loadPublic(); }
+}
+var remSeen = LS.get('apla.rem', {});
+function remCheck() { // pengingat lokal saat aplikasi terbuka (juga saat offline)
+  if (!S.b) return; var now = Date.now();
+  D('reminders').forEach(function (r) { var k = r.id + r.remind_at; if (r.status === 'pending' && new Date(r.remind_at).getTime() <= now && now - new Date(r.remind_at).getTime() < 86400000 && !remSeen[k]) { remSeen[k] = 1; LS.set('apla.rem', remSeen); toast('⏰ ' + r.title); try { if (window.Notification && Notification.permission === 'granted') new Notification('Pengingat', { body: r.title }); } catch (e) { } } });
+}
+
+initApp();
+if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+</script>
+</body>
+</html>
