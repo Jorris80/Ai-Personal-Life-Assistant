@@ -112,7 +112,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 <script>
 /* AI Personal Life Assistant — klien (inti): state, transport, sinkron offline, navigasi/back, tema, modal, zoom gambar. */
 'use strict';
-var VERSION = '1.0.0';
+var VERSION = '1.0.2';
 var $ = function (s, r) { return (r || document).querySelector(s); };
 var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -157,6 +157,11 @@ function call(action, payload) {
       rej(e);
     }
     var off = { code: 'NETWORK', offline: true, message: 'Tidak ada koneksi ke server. Coba lagi saat online.' };
+    if (window.APLA_LOCAL) { // versi demo: mesin server berjalan di browser ini
+      var tok0 = S.tok;
+      setTimeout(function () { var r = null; try { r = JSON.parse(window.APLA_LOCAL(action, payload || {}, tok0)); } catch (x) { r = { ok: false, code: 'INTERNAL', message: String(x && x.message || x) }; } done(r); }, 0);
+      return;
+    }
     if (GAS) {
       GAS.run.withSuccessHandler(function (s) { var r = null; try { r = JSON.parse(s); } catch (x) { } done(r); }).withFailureHandler(function () { rej(off); }).apiRun(action, JSON.stringify(payload || {}), S.tok);
       return;
@@ -452,11 +457,11 @@ function render(top) {
 var authMode = 'login', otpCh = '';
 function renderAuth() {
   var p = S.pub || {}, br = brand(), needUrl = !GAS && !gasUrl(), canReg = p.first_run || p.allow_register, h;
-  if (p.first_run && authMode === 'login') authMode = 'register';
+  var mode = p.first_run ? 'register' : authMode; // tidak mengubah authMode permanen
   var logo = '<button class="lg" data-act="logo.zoom" aria-label="Perbesar logo">' + (br.logo ? '<img alt="Logo" src="' + br.logo + '">' : I.sparkL) + '</button>';
   if (needUrl) h = '<form data-form="url" class="card stack"><h2>Hubungkan ke server</h2><p class="small muted">Tempel URL Web App Google Apps Script Anda (berakhiran <b>/exec</b>). Lihat Panduan PDF bagian instalasi.</p><label class="f">URL Web App<input type="url" name="url" required placeholder="https://script.google.com/macros/s/…/exec"></label><button class="btn primary block">Simpan & lanjut</button></form>';
   else if (otpCh) h = '<form data-form="otp" class="card stack"><h2>Verifikasi 2 langkah</h2><p class="small muted">Masukkan 6 digit kode yang dikirim ke email Anda.</p><label class="f">Kode<input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label><button class="btn primary block">Verifikasi</button><button type="button" class="btn ghost block" data-act="auth.mode" data-m="login">Kembali</button></form>';
-  else if (authMode === 'register' && canReg) h = '<form data-form="register" class="card stack"><h2>' + (p.first_run ? 'Buat akun pemilik' : 'Daftar akun') + '</h2>' + (p.first_run ? '<p class="small muted">Akun pertama menjadi pemilik & pemasang aplikasi.</p>' : '') +
+  else if (mode === 'register' && canReg) h = '<form data-form="register" class="card stack"><h2>' + (p.first_run ? 'Buat akun pemilik' : 'Daftar akun') + '</h2>' + (p.first_run ? '<p class="small muted">Akun pertama menjadi pemilik & pemasang aplikasi.</p>' : '') +
     '<label class="f">Nama lengkap<input type="text" name="name" required maxlength="160" autocomplete="name"></label><label class="f">Email<input type="email" name="email" required autocomplete="email"></label><label class="f">Kata sandi (min. 8 karakter)<input type="password" name="password" required minlength="8" autocomplete="new-password"></label>' +
     '<label class="f">Jenis ruang<select name="tenant_type">' + opt('personal', 'Pribadi', 'personal') + opt('family', 'Keluarga') + opt('business', 'Bisnis / tim') + '</select></label>' +
     '<label class="row small" style="align-items:flex-start"><input type="checkbox" name="agree" required style="margin-top:3px"><span>Saya menyetujui <a href="#" data-act="legal" data-k="terms">Syarat & Ketentuan</a> dan <a href="#" data-act="legal" data-k="privacy">Pemberitahuan Privasi</a>.</span></label>' +
@@ -477,7 +482,7 @@ function loadPublic() {
 }
 function enter(d) {
   if (d.mfa_required) { otpCh = d.challenge; renderAuth(); return; }
-  otpCh = ''; S.tok = d.token; LS.set('apla.tok', S.tok); S.q = []; S.msgs = {}; S.conv = null; applyBoot(d.boot);
+  otpCh = ''; if (S.pub && S.pub.first_run) { S.pub.first_run = false; LS.set('apla.pub', S.pub); } S.tok = d.token; LS.set('apla.tok', S.tok); S.q = []; S.msgs = {}; S.conv = null; applyBoot(d.boot);
   var t = (d.boot.user.prefs || {}).theme; if (t && !LS.get('apla.theme', null)) { LS.set('apla.theme', t); applyTheme(); }
   S.view = 'home'; S.arg = null; $('#root').innerHTML = ''; render(true);
 }

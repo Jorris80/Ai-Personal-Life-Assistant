@@ -1,5 +1,5 @@
 /* AI Personal Life Assistant — service worker (cangkang offline). Naikkan VERSI setiap kali index.html diperbarui. */
-const VERSI = 'apla-v1.0.0';
+const VERSI = 'apla-v1.0.2';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSI).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSI).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
